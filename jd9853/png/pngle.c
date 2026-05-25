@@ -51,7 +51,7 @@
 #endif
 
 #include "../mpfile.h"
-#include "../st7789.h"
+#include "../jd9853.h"
 
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -93,7 +93,7 @@ typedef enum {
 // typedef struct _pngle_t pngle_t; // declared in pngle.h
 struct _pngle_t {
 
-	st7789_ST7789_obj_t	*self;	// reference back to the MicroPython Object
+	jd9853_JD9853_obj_t	*self;	// reference back to the MicroPython Object
 
 	pngle_ihdr_t hdr;
 
@@ -213,7 +213,7 @@ void pngle_reset(pngle_t *pngle)
 	tinfl_init(&pngle->inflator);
 }
 
-pngle_t *pngle_new(st7789_ST7789_obj_t *self)
+pngle_t *pngle_new(jd9853_JD9853_obj_t *self)
 {
 	pngle_t *pngle = (pngle_t *)PNGLE_CALLOC(1, sizeof(pngle_t), "pngle_t");
 	if (!pngle) return NULL;
