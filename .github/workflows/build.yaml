@@ -36,7 +36,7 @@ jobs:
         cd esp-idf/tools
         python3 idf_tools.py install cmake
         cd ..
-        ./install.sh esp32
+        ./install.sh esp32s3
         cd
         
     - name: Compile with JD9853
@@ -45,7 +45,7 @@ jobs:
         source esp/esp-idf/export.sh
         cd micropython/
         make -C mpy-cross
-        export IDF_TARGET=esp32
+        export IDF_TARGET=esp32s3
         cd ports/esp32/
         cp ${GITHUB_WORKSPACE}/fonts/bitmap/vga1_16x16.py modules
         cp ${GITHUB_WORKSPACE}/fonts/truetype/NotoSans_32.py modules
