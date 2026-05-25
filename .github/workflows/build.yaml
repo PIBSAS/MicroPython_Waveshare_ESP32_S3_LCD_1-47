@@ -51,22 +51,19 @@ jobs:
         cp ${GITHUB_WORKSPACE}/fonts/bitmap/vga1_16x16.py modules
         cp ${GITHUB_WORKSPACE}/fonts/truetype/NotoSans_32.py modules
         cp ${GITHUB_WORKSPACE}/fonts/vector/scripts.py modules
+        cp ${GITHUB_WORKSPACE}/touch/axs5106.py modules
         
         idf.py -D MICROPY_BOARD=ESP32_GENERIC_S3 \
            -D USER_C_MODULES="$GITHUB_WORKSPACE/jd9853/micropython.cmake" \
            -B build-ESP32_GENERIC_S3 build
 
-    - name: Create SINGLE firmware.bin (merge)
+    - name: Move binaries ST7789
+     # if: success() || failure()
       run: |
         mkdir -p ./artifacts
-
-        esptool.py --chip esp32s3 merge_bin \
-          -o firmware.bin \
-          0x0 micropython/ports/esp32/build/bootloader/bootloader.bin \
-          0x8000 micropython/ports/esp32/build/partition_table/partition-table.bin \
-          0x10000 micropython/ports/esp32/build/micropython.bin
-
-        cp firmware.bin ./artifacts/
+        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build/micropython.bin ./artifacts/
+        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build/bootloader/bootloader.bin ./artifacts/
+        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build/partition_table/partition-table.bin ./artifacts/
     
     - name: Get MicroPython Version from mpconfig.h
       run: |
