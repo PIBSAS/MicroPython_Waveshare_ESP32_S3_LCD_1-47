@@ -39,7 +39,7 @@ jobs:
         ./install.sh esp32
         cd
         
-    - name: Compile with St7789
+    - name: Compile with JD9853
      # continue-on-error: true
       run: |
         source esp/esp-idf/export.sh
@@ -47,12 +47,12 @@ jobs:
         make -C mpy-cross
         export IDF_TARGET=esp32
         cd ports/esp32/
-        cp ${GITHUB_WORKSPACE}/st7789_mpy/fonts/bitmap/vga1_16x16.py modules
-        cp ${GITHUB_WORKSPACE}/st7789_mpy/fonts/truetype/NotoSans_32.py modules
-        cp ${GITHUB_WORKSPACE}/st7789_mpy/fonts/vector/scripts.py modules
+        cp ${GITHUB_WORKSPACE}/fonts/bitmap/vga1_16x16.py modules
+        cp ${GITHUB_WORKSPACE}/fonts/truetype/NotoSans_32.py modules
+        cp ${GITHUB_WORKSPACE}/fonts/vector/scripts.py modules
         idf.py -v build
     
-    - name: Move binaries ST7789
+    - name: Move binaries JD9853
      # if: success() || failure()
       run: |
         mkdir -p ./artifacts
@@ -81,10 +81,10 @@ jobs:
       run: echo "TAG_NAME=release-$(date +'%Y%m%d-%H%M')" >> $GITHUB_ENV
       
     - name: GH Release
-      uses: softprops/action-gh-release@v2.3.3
+      uses: softprops/action-gh-release@v3.0.0
       with:
         tag_name: ${{ env.TAG_NAME }}
-        name: "MicroPython for ESP32 with ST7789 Driver Release version ${{ env.MPY_VERSION }} (Build ${{ env.TAG_NAME }})"
+        name: "MicroPython for ESP32 with JD9853 Driver Release version ${{ env.MPY_VERSION }} (Build ${{ env.TAG_NAME }})"
         body: "Automated release for MicroPython."
         draft: false
         prerelease: false
