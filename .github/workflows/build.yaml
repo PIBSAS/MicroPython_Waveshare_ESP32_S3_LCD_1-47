@@ -54,7 +54,6 @@ jobs:
         
         idf.py -D MICROPY_BOARD=ESP32_GENERIC_S3 \
            -D USER_C_MODULES="$GITHUB_WORKSPACE/jd9853/micropython.cmake" \
-           -D MICROPY_FROZEN_MANIFEST="$GITHUB_WORKSPACE/jd9853/manifest.py" \
            -B build-ESP32_GENERIC_S3 build
 
     - name: Create SINGLE firmware.bin (merge)
