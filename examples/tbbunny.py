@@ -6,14 +6,14 @@ tbbunny.py
 """
 
 from pyb import SPI, Pin
-import uos
-import st7789
+import os
+import jd9853
 import time
 import gc
 
 gc.collect()
 
-tft = st7789.ST7789(
+tft = jd9853.JD9853(
     SPI(1, SPI.MASTER, baudrate=42000000, prescaler=2),
     240,
     320,
@@ -24,11 +24,11 @@ tft = st7789.ST7789(
     rotation=3)
 
 tft.init()
-tft.fill(st7789.BLACK)
+tft.fill(jd9853.BLACK)
 
 for i in range(1, 2387):
     last = time.ticks_ms()
     frame = "/sd/160x120/{:04d}.jpg".format(i)
-    tft.jpg(frame, 80, 60, st7789.FAST)
+    tft.jpg(frame, 80, 60, jd9853.FAST)
     if time.ticks_diff(time.ticks_ms(), last) < 250:
         time.sleep_ms(10)
