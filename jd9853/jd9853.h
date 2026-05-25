@@ -61,6 +61,12 @@ extern "C" {
 #define MAGENTA 0xF81F
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
+#define ORANGE  0xFD20
+#define PURPLE  0x780F
+#define PINK    0xF81F
+#define GRAY    0x8410
+#define DARKGRAY 0x4208
+#define BROWN   0xA145
 
 #define OPTIONS_WRAP_V 0x01
 #define OPTIONS_WRAP_H 0x02
@@ -101,7 +107,7 @@ typedef struct _jd9853_JD9853_obj_t {
     size_t buffer_size;         // resident buffer size, 0=dynamic
     uint16_t display_width;     // physical width
     uint16_t width;             // logical width (after rotation)
-    uint16_t display_height;    // physical width
+    uint16_t display_height;    // physical height
     uint16_t height;            // logical height (after rotation)
     uint8_t colstart;
     uint8_t rowstart;
