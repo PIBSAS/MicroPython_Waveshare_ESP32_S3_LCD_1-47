@@ -109,52 +109,59 @@
 // { madctl, width, height, colstart, rowstart }
 
 jd9853_rotation_t ORIENTATIONS_240x320[4] = {
-    {0x00, 240, 320, 0, 0},
-    {0x60, 320, 240, 0, 0},
-    {0xc0, 240, 320, 0, 0},
-    {0xa0, 320, 240, 0, 0}
+    {0x48, 240, 320, 0, 0},
+    {0x28, 320, 240, 0, 0},
+    {0x88, 240, 320, 0, 0},
+    {0xE8, 320, 240, 0, 0}
 };
 
 jd9853_rotation_t ORIENTATIONS_170x320[4] = {
-    {0x00, 170, 320, 35, 0},
-    {0x60, 320, 170, 0, 35},
-    {0xc0, 170, 320, 35, 0},
-    {0xa0, 320, 170, 0, 35}
+    {0x48, 170, 320, 35, 0},
+    {0x28, 320, 170, 0, 35},
+    {0x88, 170, 320, 35, 0},
+    {0xE8, 320, 170, 0, 35}
+};
+
+jd9853_rotation_t ORIENTATIONS_172x320[4] = {
+    {0x48, 172, 320, 34, 0},
+    {0x28, 320, 172, 0, 34},
+    {0x88, 172, 320, 34, 0},
+    {0xE8, 320, 172, 0, 34}
 };
 
 jd9853_rotation_t ORIENTATIONS_240x240[4] = {
-    {0x00, 240, 240, 0, 0},
-    {0x60, 240, 240, 0, 0},
-    {0xc0, 240, 240, 0, 80},
-    {0xa0, 240, 240, 80, 0}
+    {0x48, 240, 240, 0, 0},
+    {0x28, 240, 240, 0, 0},
+    {0x88, 240, 240, 0, 80},
+    {0xE8, 240, 240, 80, 0}
 };
 
 jd9853_rotation_t ORIENTATIONS_135x240[4] = {
-    {0x00, 135, 240, 52, 40},
-    {0x60, 240, 135, 40, 53},
-    {0xc0, 135, 240, 53, 40},
-    {0xa0, 240, 135, 40, 52}
+    {0x48, 135, 240, 52, 40},
+    {0x28, 240, 135, 40, 53},
+    {0x88, 135, 240, 53, 40},
+    {0xE8, 240, 135, 40, 52}
 };
 
 jd9853_rotation_t ORIENTATIONS_128x160[4] = {
-    {0x00, 128, 160, 0, 0},
-    {0x60, 160, 128, 0, 0},
-    {0xc0, 128, 160, 0, 0},
-    {0xa0, 160, 128, 0, 0}
+    {0x48, 128, 160, 0, 0},
+    {0x28, 160, 128, 0, 0},
+    {0x88, 128, 160, 0, 0},
+    {0xE8, 160, 128, 0, 0}
 };
 
 jd9853_rotation_t ORIENTATIONS_80x160[4] = {
-    {0x00, 80, 160, 26, 1},
-    {0x60, 160, 80, 1, 26},
-    {0xc0, 80, 160, 26, 1},
-    {0xa0, 160, 80, 1, 26}
+    {0x48, 80, 160, 26, 1},
+    {0x28, 160, 80, 1, 26},
+    {0x88, 80, 160, 26, 1},
+    {0xE8, 160, 80, 1, 26}
 };
 
 jd9853_rotation_t ORIENTATIONS_128x128[4] = {
-    {0x00, 128, 128, 2, 1},
-    {0x60, 128, 128, 1, 2},
-    {0xc0, 128, 128, 2, 3},
-    {0xa0, 128, 128, 3, 2}
+    {0x48, 128, 128, 2, 1},
+    {0x28, 128, 128, 1, 2},
+    {0x88, 128, 128, 2, 3},
+    {0xE8, 128, 128, 3, 2}
 };
 
 static void write_spi(mp_obj_base_t *spi_obj, const uint8_t *buf, int len) {
@@ -391,13 +398,13 @@ static mp_obj_t jd9853_JD9853_fill_rect(size_t n_args, const mp_obj_t *args) {
     uint16_t right = x + w - 1;
     uint16_t bottom = y + h - 1;
 
-    if (x < self->width && y < self->height) {
+    if (x >= self->width || y >= self->height) {
         if (right > self->width) {
-            right = self->width;
+            right = self->width - 1;
         }
 
         if (bottom > self->height) {
-            bottom = self->height;
+            bottom = self->height - 1;
         }
 
         set_window(self, x, y, right, bottom);
@@ -1109,6 +1116,8 @@ static void set_rotation(jd9853_JD9853_obj_t *self) {
             rotations = ORIENTATIONS_240x320;
         } else if (self->display_width == 170 && self->display_height == 320) {
             rotations = ORIENTATIONS_170x320;
+        } else if (self->display_width == 172 && self->display_height == 320) {
+            rotations = ORIENTATIONS_172x320;
         } else if (self->display_width == 240 && self->display_height == 240) {
             rotations = ORIENTATIONS_240x240;
         } else if (self->display_width == 135 && self->display_height == 240) {
@@ -1226,8 +1235,15 @@ static mp_obj_t jd9853_JD9853_init(mp_obj_t self_in) {
     if (self->custom_init == MP_OBJ_NULL) {
         jd9853_JD9853_soft_reset(self_in);
         write_cmd(self, JD9853_SLPOUT, NULL, 0);
+        mp_hal_delay_ms(120);
 
-        const uint8_t color_mode[] = {COLOR_MODE_65K | COLOR_MODE_16BIT};
+       const uint8_t unlock[] = {0x98, 0x53};
+       write_cmd(self, 0xDF, unlock, 2);
+       mp_hal_delay_ms(10);
+       write_cmd(self, 0xDF, unlock, 2);
+       mp_hal_delay_ms(10);
+
+        const uint8_t color_mode[] = {0x05};
         write_cmd(self, JD9853_COLMOD, color_mode, 1);
         mp_hal_delay_ms(10);
 
