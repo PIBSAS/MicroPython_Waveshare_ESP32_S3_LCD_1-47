@@ -2498,7 +2498,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_invert_area_obj, 5, 5, 
 */
 //
 // contrast(level) - Adjust contrast (0-255)
-//
+/*
 static mp_obj_t jd9853_JD9853_contrast(mp_obj_t self_in, mp_obj_t level_in) {
     jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_int_t level = mp_obj_get_int(level_in);
@@ -2513,7 +2513,7 @@ static mp_obj_t jd9853_JD9853_contrast(mp_obj_t self_in, mp_obj_t level_in) {
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(jd9853_JD9853_contrast_obj, jd9853_JD9853_contrast);
-
+*/
 //
 // gradient_fill(x, y, w, h, color1, color2, direction) - Gradient fill
 //
@@ -2814,6 +2814,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fill_ellipse_obj, 6, 6,
 //
 // fade_out(steps, delay_ms) - Fade out effect
 //
+/*
 static mp_obj_t jd9853_JD9853_fade_out(size_t n_args, const mp_obj_t *args) {
     jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_int_t steps = mp_obj_get_int(args[1]);
@@ -2841,7 +2842,7 @@ static mp_obj_t jd9853_JD9853_fade_out(size_t n_args, const mp_obj_t *args) {
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fade_out_obj, 3, 3, jd9853_JD9853_fade_out);
-
+*/
 //
 // scroll_horizontal(dx) - Horizontal scroll (using software)
 /*
@@ -2944,7 +2945,7 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_fill_polygon), MP_ROM_PTR(&jd9853_JD9853_fill_polygon_obj)},
     {MP_ROM_QSTR(MP_QSTR_bounding), MP_ROM_PTR(&jd9853_JD9853_bounding_obj)},
    // {MP_ROM_QSTR(MP_QSTR_invert_area), MP_ROM_PTR(&jd9853_JD9853_invert_area_obj)},
-    {MP_ROM_QSTR(MP_QSTR_contrast), MP_ROM_PTR(&jd9853_JD9853_contrast_obj)},
+   // {MP_ROM_QSTR(MP_QSTR_contrast), MP_ROM_PTR(&jd9853_JD9853_contrast_obj)},
     {MP_ROM_QSTR(MP_QSTR_gradient_fill), MP_ROM_PTR(&jd9853_JD9853_gradient_fill_obj)},
     {MP_ROM_QSTR(MP_QSTR_draw_icon), MP_ROM_PTR(&jd9853_JD9853_draw_icon_obj)},
     {MP_ROM_QSTR(MP_QSTR_get_info), MP_ROM_PTR(&jd9853_JD9853_get_info_obj)},
@@ -2952,7 +2953,7 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_fill_triangle), MP_ROM_PTR(&jd9853_JD9853_fill_triangle_obj)},
     {MP_ROM_QSTR(MP_QSTR_ellipse), MP_ROM_PTR(&jd9853_JD9853_ellipse_obj)},
     {MP_ROM_QSTR(MP_QSTR_fill_ellipse), MP_ROM_PTR(&jd9853_JD9853_fill_ellipse_obj)},
-    {MP_ROM_QSTR(MP_QSTR_fade_out), MP_ROM_PTR(&jd9853_JD9853_fade_out_obj)},
+   // {MP_ROM_QSTR(MP_QSTR_fade_out), MP_ROM_PTR(&jd9853_JD9853_fade_out_obj)},
 };
 static MP_DEFINE_CONST_DICT(jd9853_JD9853_locals_dict, jd9853_JD9853_locals_dict_table);
 /* methods end */
