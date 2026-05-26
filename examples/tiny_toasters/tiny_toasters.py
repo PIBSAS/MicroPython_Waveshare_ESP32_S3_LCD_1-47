@@ -12,7 +12,7 @@ tiny_toasters.py - Flying Tiny Toasters for smaller displays (like the ST7735)
 import gc
 import time
 import random
-import st7789
+import jd9853
 import tft_config
 import ttoast_bitmaps as toast_bitmaps
 
@@ -77,16 +77,16 @@ def main():
             '''clear above and behind sprite'''
             tft.fill_rect(
                 self.col, self.row-1, self.width, self.dir_row+1,
-                st7789.BLACK)
+                jd9853.BLACK)
 
             tft.fill_rect(
                 self.col+self.width+self.dir_col, self.row,
-                -self.dir_col, self.height, st7789.BLACK)
+                -self.dir_col, self.height, jd9853.BLACK)
 
         def erase(self):
             '''erase last position of sprite'''
             tft.fill_rect(
-                self.last_col, self.last_row, self.width, self.height, st7789.BLACK)
+                self.last_col, self.last_row, self.width, self.height, jd9853.BLACK)
 
         def move(self, sprites):
             '''step frame and move sprite'''
@@ -143,7 +143,7 @@ def main():
 
     # init and clear screen
     tft.init()
-    tft.fill(st7789.BLACK)
+    tft.fill(jd9853.BLACK)
 
     # create toast spites and set animation frames
     sprites = []
