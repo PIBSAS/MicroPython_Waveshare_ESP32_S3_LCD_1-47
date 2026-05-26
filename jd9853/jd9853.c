@@ -101,7 +101,7 @@
 }
 
 //
-// Default jd9853 and st7735 display orientation tables
+// Default jd9853 display orientation tables
 // can be overridden during init(), madctl values
 // will be combined with color_mode
 //
