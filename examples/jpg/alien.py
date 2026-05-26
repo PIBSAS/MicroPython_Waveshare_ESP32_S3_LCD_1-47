@@ -13,7 +13,7 @@ import gc
 import random
 import time
 import tft_config
-import st7789
+import jd9853
 
 gc.enable()
 gc.collect()
