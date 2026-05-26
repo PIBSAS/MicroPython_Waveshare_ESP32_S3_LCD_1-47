@@ -6,7 +6,7 @@ bigbuckbunny.py
     bigbuckbunny.png (c) copyright 2008, Blender Foundation / www.bigbuckbunny.org
 """
 
-import st7789
+import jd9853
 import tft_config
 
 tft = tft_config.config(0, buffer_size=4096)
