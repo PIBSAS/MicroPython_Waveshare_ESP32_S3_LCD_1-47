@@ -1,6 +1,7 @@
 
-# ST7789 Driver for MicroPython
+# JD9853 Driver for MicroPython based on st7789_mpy from russhughes to fit the JD9853 for [Waveshare ESP32-S3 Touch LCD 1.47](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-1.47)
 
+## ST7789 Original Readme:
 This driver is based on [devbis' st7789_mpy driver.](https://github.com/devbis/st7789_mpy)
 I modified the original driver for one of my projects to add:
 
@@ -29,12 +30,12 @@ rowstart values needed for a display.
 ### Color Modes
 
 You can test for the correct color order needed by a display by filling it with
-the `st7789.RED` color and observing the actual color displayed.
+the `jd9853.RED` color and observing the actual color displayed.
 
   - If the displayed color is RED, the settings are correct.
-  - If the displayed color is BLUE, `color_order` should be `st7789.BGR`.
+  - If the displayed color is BLUE, `color_order` should be `jd9853.BGR`.
   - If the displayed color is YELLOW, `inversion_mode` should be `True.`
-  - If the displayed color is CYAN, `color_order` should be `st7789.BGR` and
+  - If the displayed color is CYAN, `color_order` should be `jd9853.BGR` and
     `inversion_mode` should be `True.`
 
 ### colstart and rowstart
@@ -50,49 +51,13 @@ The driver automatically sets the `colstart` and `rowstart` values for common
 your display, these values can be overridden using the `offsets` method. The
 `offsets` method should be called after any `rotation` method calls.
 
-#### 128x128 st7735 cfg_helper.py example
-
-```
-inversion_mode(False)
-color_order = st7789.BGR
-for rotation 0 use offset(2, 1)
-for rotation 1 use offset(1, 2)
-for rotation 2 use offset(2, 3)
-for rotation 3 use offset(3, 2)
-```
-
-#### 128x160 st7735 cfg_helper.py example
-
-```
-inversion_mode(False)
-color_order = st7789.RGB
-for rotation 0 use offset(0, 0)
-for rotation 1 use offset(0, 0)
-for rotation 2 use offset(0, 0)
-for rotation 3 use offset(0, 0)
-```
-
 ## Pre-compiled firmware files
 
-The firmware directory contains pre-compiled firmware for various devices with
-the st7789 C driver and frozen python font files. See the README.md file in the
+The Release page contains pre-compiled firmware for [Waveshare ESP32-S3 Touch LCD 1.47](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-1.47) device with
+the jd9853 C driver and frozen python font files and touch driver AXS5106 plus tft_config. See the README.md file in the
 fonts folder for more information on the font files.
 
-MicroPython MicroPython v1.20.0 compiled with ESP IDF v4.4.4 using CMake
-
-Directory             | File         | Device
---------------------- | ------------ | ----------------------------------
-GENERIC-7789          | firmware.bin | Generic ESP32 devices
-GENERIC_SPIRAM-7789   | firmware.bin | Generic ESP32 devices with SPI Ram
-GENERIC_C3            | firmware.bin | Generic ESP32-C3 devices
-LOLIN_S2_MINI         | firmware.bin | Wemos S2 mini
-PYBV11                | firmware.dfu | Pyboard v1.1 (No PNG)
-RP2                   | firmware.uf2 | Raspberry Pi Pico RP2040
-RP2W                  | firmware.uf2 | Raspberry Pi PicoW RP2040
-T-DISPLAY             | firmware.bin | LILYGO® TTGO T-Display
-T-Watch-2020          | firmware.bin | LILYGO® T-Watch 2020
-WIO_TERMINAL          | firmware.bin | Seeed Wio Terminal
-
+Latest MicroPython compiled with ESP IDF using CMake
 
 ## Additional Modules
 
@@ -100,23 +65,7 @@ Module             | Source
 ------------------ | -----------------------------------------------------------
 axp202c            | https://github.com/lewisxhe/AXP202X_Libraries
 focaltouch         | https://gitlab.com/mooond/t-watch2020-esp32-with-micropython
-
-## Video Examples
-
-Example               | Video
---------------------- | -----------------------------------------------------------
-PYBV11 hello.py       | https://youtu.be/OtcERmad5ps
-PYBV11 scroll.py      | https://youtu.be/ro13rvaLKAc
-T-DISPLAY fonts.py    | https://youtu.be/2cnAhEucPD4
-T-DISPLAY hello.py    | https://youtu.be/z41Du4GDMSY
-T-DISPLAY scroll.py   | https://youtu.be/GQa-RzHLBak
-T-DISPLAY roids.py    | https://youtu.be/JV5fPactSPU
-TWATCH-2020 draw.py   | https://youtu.be/O_lDBnvH1Sw
-TWATCH-2020 hello.py  | https://youtu.be/Bwq39tuMoY4
-TWATCH-2020 bitmap.py | https://youtu.be/DgYzgnAW2d8
-TWATCH-2020 watch.py  | https://youtu.be/NItKb6umMc4
-
-This is a work in progress.
+axs5106            | Made it with IA for Waveshare ESP32-S3 Touch LCD 1.47
 
 ## Thanks go out to:
 
@@ -129,186 +78,35 @@ This is a work in progress.
 
 ## Overview
 
-This is a driver for MicroPython to handle cheap displays based on the ST7789
-chip. The driver is written in C. Firmware is provided for ESP32, ESP32 with SPIRAM,
-pyboard1.1, and Raspberry Pi Pico devices.
+This is a driver for MicroPython to handle cheap displays based on the JD9853
+chip. The driver is written in C. Firmware is provided for [Waveshare ESP32-S3 Touch LCD 1.47](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-1.47)
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/ST7789.jpg" alt="ST7789 display photo"/>
+  <img src="https://docs.waveshare.com/assets/images/ESP32-S3-Touch-LCD-1.47-details-3-1-5fc18c6a3960c3ac38e15d2a51caec4c.webp" alt="JD9853 display photo"/>
 </p>
-
-
-# Setup MicroPython Build Environment in Ubuntu 20.04.2
-
-See the MicroPython
-[README.md](https://github.com/micropython/micropython/blob/master/ports/esp32/README.md#setting-up-esp-idf-and-the-build-environment)
-if you run into any build issues not directly related to the st7789 driver. The
-recommended MicroPython build instructions may have changed.
-
-Update and upgrade Ubuntu using apt-get if you are using a new install of
-Ubuntu or the Windows Subsystem for Linux.
-
-```bash
-sudo apt-get -y update
-sudo apt-get -y upgrade
-```
-
-Use apt-get to install the required build tools.
-
-```bash
-sudo apt-get -y install build-essential libffi-dev git pkg-config cmake virtualenv python3-pip python3-virtualenv
-```
-
-### Install a compatible esp-idf SDK
-
-The MicroPython README.md states: "The ESP-IDF changes quickly, and MicroPython
-only supports certain versions. Currently, MicroPython supports v4.0.2, v4.1.1,
-and v4.2 although other IDF v4 versions may also work."  I have had good luck
-using IDF v4.4
-
-Clone the esp-idf SDK repo -- this usually takes several minutes.
-
-```bash
-git clone -b v4.4 --recursive https://github.com/espressif/esp-idf.git
-cd esp-idf/
-git pull
-```
-
-If you already have a copy of the IDF, you can checkout a version compatible
-with MicroPython and update the submodules using:
-
-```bash
-$ cd esp-idf
-$ git checkout v4.4
-$ git submodule update --init --recursive
-```
-
-Install the esp-idf SDK.
-
-```bash
-./install.sh
-```
-
-Source the esp-idf export.sh script to set the required environment variables.
-You must source the file and not run it using ./export.sh. You will need to
-source this file before compiling MicroPython.
-
-```bash
-source export.sh
-cd ..
-```
-
-Clone the MicroPython repo.
-
-```bash
-git clone https://github.com/micropython/micropython.git
-```
-
-Clone the st7789 driver repo.
-
-```bash
-git clone https://github.com/russhughes/st7789_mpy.git
-```
-
-Update the git submodules and compile the MicroPython cross-compiler
-
-```bash
-cd micropython/
-git submodule update --init
-cd mpy-cross/
-make
-cd ..
-cd ports/esp32
-```
-
-Copy any .py files you want to include in the firmware as frozen python modules
-to the modules subdirectory in ports/esp32. Be aware there is a limit to the
-flash space available. You will know you have exceeded this limit if you
-receive an error message saying the code won't fit in the partition or if your
-firmware continuously reboots with an error.
-
-For example:
-
-```bash
-cp ../../../st7789_mpy/fonts/bitmap/vga1_16x16.py modules
-cp ../../../st7789_mpy/fonts/truetype/NotoSans_32.py modules
-cp ../../../st7789_mpy/fonts/vector/scripts.py modules
-```
-
-Build the MicroPython firmware with the driver and frozen .py files in the
-modules directory. If you did not add any .py files to the modules directory,
-you can leave out the FROZEN_MANIFEST and FROZEN_MPY_DIR settings.
-
-```bash
-make USER_C_MODULES=../../../../st7789_mpy/st7789/micropython.cmake FROZEN_MANIFEST="" FROZEN_MPY_DIR=$UPYDIR/modules
-```
-
-Erase and flash the firmware to your device. Set PORT= to the ESP32's usb
-serial port. I could not get the USB serial port to work under the Windows
-Subsystem (WSL2) for Linux. If you have the same issue, you can copy the
-firmware.bin file and use the Windows esptool.py to flash your device.
-
-```bash
-make USER_C_MODULES=../../../../st7789_mpy/st7789/micropython.cmake PORT=/dev/ttyUSB0 erase
-make USER_C_MODULES=../../../../st7789_mpy/st7789/micropython.cmake PORT=/dev/ttyUSB0 deploy
-```
-
-The firmware.bin file will be in the build-GENERIC directory. To flash using
-the python esptool.py utility. Use pip3 to install the esptool if it's not
-already installed.
-
-```bash
-pip3 install esptool
-```
-
-Set PORT= to the ESP32's USB serial port
-
-```bash
-esptool.py --port COM3 erase_flash
-esptool.py --chip esp32 --port COM3 write_flash -z 0x1000 firmware.bin
-```
-## CMake building instructions for MicroPython 1.14 and later
-
-for ESP32:
-
-    $ cd micropython/ports/esp32
-
-And then compile the module with specified USER_C_MODULES dir.
-
-    $ make USER_C_MODULES=../../../../st7789_mpy/st7789/micropython.cmake
-
-for Raspberry Pi PICO:
-
-    $ cd micropython/ports/rp2
-
-And then compile the module with specified USER_C_MODULES dir.
-
-    $ make USER_C_MODULES=../../../st7789_mpy/st7789/micropython.cmake
 
 ## Working examples
 
-This module was tested on ESP32, STM32 based pyboard v1.1, and the Raspberry Pi
-Pico. You have to provide an `SPI` object and the pin to use for the `dc' input
-of the screen.
+This module was tested on [Waveshare ESP32-S3 Touch LCD 1.47](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-1.47).
+
+## Pinout
+<p align="center">
+  <img src="https://docs.waveshare.com/assets/images/ESP32-S3-Touch-LCD-1.47-details-inter-f60fcf8e6f1405b29f83509d1d1246e7.webp" alt="JD9853 Pinout photo"/>
+</p>
 
 
-    # ESP32 Example
-    # To use baudrates above 26.6MHz you must use my firmware or modify the micropython
-    # source code to increase the SPI baudrate limit by adding SPI_DEVICE_NO_DUMMY to the
-    # .flag member of the spi_device_interface_config_t struct in the machine_hw_spi_init_internal.c
-    # file.  Not doing so will cause the ESP32 to crash if you use a baudrate that is too high.
-
-    import machine
-    import st7789
-    spi = machine.SPI(2, baudrate=40000000, polarity=1, sck=machine.Pin(18), mosi=machine.Pin(23))
-    display = st7789.ST7789(spi, 240, 240, reset=machine.Pin(4, machine.Pin.OUT), dc=machine.Pin(2, machine.Pin.OUT))
+    # ESP32-S3 Touch LCD 1.47 Example
+    
+    import jd9853
+    import tft_config
+    display = tft_config.config(0)
     display.init()
 
 
 ## Methods
 
-- `st7789.ST7789(spi, width, height, dc, reset, cs, backlight, rotations, rotation, custom_init, color_order, inversion, options, buffer_size)`
+- `jd9853.JD9853(spi, width, height, dc, reset, cs, backlight, rotations, rotation, custom_init, color_order, inversion, options, buffer_size)`
 
     ### Required positional arguments:
     - `spi` spi device
@@ -339,24 +137,25 @@ of the screen.
       of tuples for each `rotation` used to set the MADCTL register, display width,
       display height, start_x, and start_y values.
 
-      Default `rotations` are included for the following st7789 and st7735
+      Default `rotations` are included for the following jd9853 and st7735
       display sizes:
 
       Display | Default Orientation Tables
       ------- | --------------------------
-      240x320 | [(0x00, 240, 320,  0,  0), (0x60, 320, 240,  0,  0), (0xc0, 240, 320,  0,  0), (0xa0, 320, 240,  0,  0)]
-      170x320 |	[(0x00, 170, 320, 35, 0), (0x60, 320, 170, 0, 35), (0xc0, 170, 320, 35, 0), (0xa0, 320, 170, 0, 35)]
-      240x240 | [(0x00, 240, 240,  0,  0), (0x60, 240, 240,  0,  0), (0xc0, 240, 240,  0, 80), (0xa0, 240, 240, 80,  0)]
-      135x240 | [(0x00, 135, 240, 52, 40), (0x60, 240, 135, 40, 53), (0xc0, 135, 240, 53, 40), (0xa0, 240, 135, 40, 52)]
-      128x160 | [(0x00, 128, 160,  0,  0), (0x60, 160, 128,  0,  0), (0xc0, 128, 160,  0,  0), (0xa0, 160, 128,  0,  0)]
-      128x128 | [(0x00, 128, 128,  2,  1), (0x60, 128, 128,  1,  2), (0xc0, 128, 128,  2,  3), (0xa0, 128, 128,  3,  2)]
+      240x320 | [(0x48, 240, 320,  0,  0), (0x28, 320, 240,  0,  0), (0x88, 240, 320,  0,  0), (0xE8, 320, 240,  0,  0)]
+      170x320 |	[(0x48, 170, 320, 35, 0), (0x28, 320, 170, 0, 35), (0x88, 170, 320, 35, 0), (0xE8, 320, 170, 0, 35)]
+      172x320 |	[(0x48, 172, 320, 34, 0), (0x28, 320, 172, 0, 34), (0x88, 172, 320, 34, 0), (0xE8, 320, 172, 0, 34)]
+      240x240 | [(0x48, 240, 240,  0,  0), (0x28, 240, 240,  0,  0), (0x88, 240, 240,  0, 80), (0xE8, 240, 240, 80,  0)]
+      135x240 | [(0x48, 135, 240, 52, 40), (0x28, 240, 135, 40, 53), (0x88, 135, 240, 53, 40), (0xE8, 240, 135, 40, 52)]
+      128x160 | [(0x48, 128, 160,  0,  0), (0x28, 160, 128,  0,  0), (0x88, 128, 160,  0,  0), (0xE8, 160, 128,  0,  0)]
+      128x128 | [(0x48, 128, 128,  2,  1), (0x28, 128, 128,  1,  2), (0x88, 128, 128,  2,  3), (0xE8, 128, 128,  3,  2)]
        other  | [(0x00, width, height, 0, 0)]
 
       You may define as many rotations as you wish.
 
     - `rotation` sets the display rotation according to the orientation table.
 
-      The default orientation table defines four counter-clockwise rotations for 240x320, 240x240,
+      The default orientation table defines four counter-clockwise rotations for 240x320, 170X320, 172X320, 240x240,
       134x240, 128x160 and 128x128 displays with the LCD's ribbon cable at the bottom of the display.
       The default rotation is Portrait (0 degrees).
 
@@ -370,9 +169,9 @@ of the screen.
     - `custom_init` List of display configuration commands to send to the display during the display init().
         The list contains tuples with a bytes object, optionally followed by a delay specified in ms. The first
         byte of the bytes object contains the command to send optionally followed by data bytes.
-        See the `examples/configs/t_dongle_s3/tft_config.py` file or an example.
+        See the `examples/configs/waveshare_esp32_s3_touch_lcd_1-4/tft_config.py` file or an example.
 
-    - `color_order` Sets the color order used by the driver (st7789.RGB or st7789.BGR)
+    - `color_order` Sets the color order used by the driver (jd9853.RGB or jd9853.BGR)
 
     - `inversion` Sets the display color inversion mode if True, clears the
       display color inversion mode if false.
@@ -381,9 +180,9 @@ of the screen.
 
       Option        | Description
       ------------- | -----------
-      st7789.WRAP   | pixels, lines, polygons, and Hershey text will wrap around the display both horizontally and vertically.
-      st7789.WRAP_H | pixels, lines, polygons, and Hershey text will wrap around the display horizontally.
-      st7789.WRAP_V | pixels, lines, polygons, and Hershey text will wrap around the display vertically.
+      jd9853.WRAP   | pixels, lines, polygons, and Hershey text will wrap around the display both horizontally and vertically.
+      jd9853.WRAP_H | pixels, lines, polygons, and Hershey text will wrap around the display horizontally.
+      jd9853.WRAP_V | pixels, lines, polygons, and Hershey text will wrap around the display vertically.
 
     - `buffer_size` If a buffer_size is not specified, a dynamically allocated
       buffer is created and freed as needed. If a buffer_size is set, it must
@@ -402,27 +201,27 @@ of the screen.
 
     Constant Name    | Value | Description
     ---------------- | ----- | ----------------------
-    st7789.MADCTL_MY | 0x80  | Page Address Order
-    st7789_MADCTL_MX | 0x40  | Column Address Order
-    st7789_MADCTL_MV | 0x20  | Page/Column Order
-    st7789_MADCTL_ML | 0x10  | Line Address Order
-    st7789_MADCTL_MH | 0x04  | Display Data Latch Order
-    st7789_RGB       | 0x00  | RGB color order
-    st7789_BGR       | 0x08  | BGR color order
+    jd9853.MADCTL_MY | 0x80  | Page Address Order
+    jd9853_MADCTL_MX | 0x40  | Column Address Order
+    jd9853_MADCTL_MV | 0x20  | Page/Column Order
+    jd9853_MADCTL_ML | 0x10  | Line Address Order
+    jd9853_MADCTL_MH | 0x04  | Display Data Latch Order
+    jd9853_RGB       | 0x00  | RGB color order
+    jd9853_BGR       | 0x08  | BGR color order
 
    #### [MADCTL examples](#madctl-examples)
 
 
      Orientation | MADCTL Values for RGB color order, for BGR color order add 0x08 to the value.
      ----------- | ---------------------------------------------------------------------------------
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_0.png" /> | 0x00
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_y.png" /> | 0x80 ( MADCTL_MY )
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_x.png" /> | 0x40 ( MADCTL_MX )
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_xy.png" /> | 0xC0 ( MADCTL_MX + MADCTL_MY )
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_v.png" /> | 0x20 ( MADCTL_MV )
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_vy.png" /> | 0xA0 ( MADCTL_MV + MADCTL_MY )
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_vx.png" /> | 0x60 ( MADCTL_MV + MADCTL_MX )
-     <img src="https://raw.githubusercontent.com/russhughes/st7789_mpy/master/docs/madctl_vxy.png" /> | 0xE0 ( MADCTL_MV + MADCTL_MX + MADCTL_MY )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_0.png" /> | 0x00
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_y.png" /> | 0x80 ( MADCTL_MY )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_x.png" /> | 0x40 ( MADCTL_MX )
+     <img src="https://raw.githubusercontent.com/russhughes/_mpy/master/docs/madctl_xy.png" /> | 0xC0 ( MADCTL_MX + MADCTL_MY )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_v.png" /> | 0x20 ( MADCTL_MV )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_vy.png" /> | 0xA0 ( MADCTL_MV + MADCTL_MY )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_vx.png" /> | 0x60 ( MADCTL_MV + MADCTL_MX )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_vxy.png" /> | 0xE0 ( MADCTL_MV + MADCTL_MX + MADCTL_MY )
 
 - `init()`
 
@@ -649,7 +448,7 @@ of the screen.
   0-Portrait (0 degrees), 1-Landscape (90 degrees), 2-Inverse Portrait (180
   degrees), 3-Inverse Landscape (270 degrees)
 
-- `offset(x_start, y_start)` The memory in the ST7789 controller is configured
+- `offset(x_start, y_start)` The memory in the JD9853 controller is configured
   for a 240x320 display. When using a smaller display like a 240x240 or
   135x240, an offset needs to be added to the x and y parameters so that the
     pixels are written to the memory area corresponding to the visible display.
@@ -677,11 +476,11 @@ of the screen.
 
 
 The module exposes predefined colors:
-  `BLACK`, `BLUE`, `RED`, `GREEN`, `CYAN`, `MAGENTA`, `YELLOW`, and `WHITE`
+  `BLACK`, `BLUE`, `RED`, `GREEN`, `CYAN`, `MAGENTA`, `YELLOW`, `ORANGE`, `PURPLE`, `PINK`, `GRAY`, `DARKGRAY`, `BROWN` and `WHITE`
 
 ## Scrolling
 
-The st7789 display controller contains a 240 by 320-pixel frame buffer used to
+The jd9853 display controller contains a 172 by 320-pixel frame buffer used to
 store the pixels for the display. For scrolling, the frame buffer consists of
 three separate areas; The (`tfa`) top fixed area, the (`height`) scrolling
 area, and the (`bfa`) bottom fixed area. The `tfa` is the upper portion of the
@@ -703,16 +502,10 @@ of 240, and `bfa` value of 40 (40+240+40=320) because the T-Display LCD shows
 240 rows starting at the 40th row of the frame buffer, leaving the last 40 rows
 of the frame buffer undisplayed.
 
-Other displays like the Waveshare Pico LCD 1.3 inch 240x240 display require the
-`tfa` set to 0, `height` set to 240, and `bfa` set to 80 (0+240+80=320) to
-scroll the entire display. The Pico LCD 1.3 shows 240 rows starting at the 0th
-row of the frame buffer, leaving the last 80 rows of the frame buffer
-undisplayed.
-
 The `vscsad` method sets the (VSSA) Vertical Scroll Start Address. The VSSA
 sets the line in the frame buffer that will be the first line after the `tfa`.
 
-    The ST7789 datasheet warns:
+    The JD9853 datasheet warns:
 
     The value of the vertical scrolling start address is absolute (with reference to the frame memory),
     it must not enter the fixed area (defined by Vertical Scrolling Definition, otherwise undesirable
