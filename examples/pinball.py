@@ -848,6 +848,7 @@ if TOUCH_ENABLED:
 # ------------ tft_buttons.py configs for different devices ------------
 
 buttons = tft_buttons.Buttons()
+buttons_enabled = True  # ← Mover esta línea ANTES de usarla
 
 if buttons.name == 'tdisplay_esp32':
     left_flipper = buttons.left
