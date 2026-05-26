@@ -572,27 +572,6 @@ tft.scroll(10)   # Move 10 pixels down
 tft.scroll(-5)   # Move 5 píxels up
 ````
 
-## Contrast:
-
-- `contrast(level)`
-
-Adjust the screen contrast level.
-
-### Syntax:
-
-- `tft.contrast(level)`
-
-### Parameters:
-
-- `level`(int): Contrast level from 0 to 255. (0 = minimum, 255 = maximum)
-
-#### Example:
-
-````python
-tft.contrast(200)  # Increase the contrast
-tft.contrast(100)  # Decrease the contrast
-````
-
 ## Gradient fill:
 
 - `gradient_fill(x, y, w, h, color1, color2, direction)`
@@ -841,26 +820,3 @@ tft.fill_ellipse(120, 160, 30, 30, jd9853.RED)
 tft.fill_ellipse(120, 160, 60, 30, jd9853.GREEN)
 ````
 
-## Fade out:
-
-- `fade_out(steps, delay_ms)`
-  
-Screen fade effect.
-
-### Syntax:
-
-````python
-tft.fade_out(steps, delay_ms)
-````
-
-### Parameters:
-
-- `steps` (int): Number of fade steps (1-255)
-- `delay_ms` (int): Delay between steps in milliseconds
-
-#### Example:
-
-````python
-# Fading in 30 steps, 50ms between each step
-tft.fade_out(30, 50)
-````
