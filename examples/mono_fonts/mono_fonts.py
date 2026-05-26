@@ -5,7 +5,7 @@ mono and proportional fonts using the write method.
 """
 
 import time
-import st7789
+import jd9853
 import tft_config
 
 import inconsolata_16 as font_16
@@ -15,7 +15,7 @@ import inconsolata_64 as font_64
 tft = tft_config.config(1, buffer_size=66*32*2)
 
 def display_font(font, fast):
-    tft.fill(st7789.BLUE)
+    tft.fill(jd9853.BLUE)
     column = 0
     row = 0
     for char in font.MAP:
