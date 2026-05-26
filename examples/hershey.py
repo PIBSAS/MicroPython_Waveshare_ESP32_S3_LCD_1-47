@@ -6,11 +6,11 @@ hershey.py
 """
 
 import random
-import utime
-import st7789
+import time
+import jd9853
 import tft_config
 
-tft = tft_config.config(0, options=st7789.WRAP_V)
+tft = tft_config.config(0, options=jd9853.WRAP_V)
 
 # Load several frozen fonts from flash
 
@@ -71,7 +71,7 @@ def main():
     """Scroll greetings on the display cycling thru Hershey fonts and colors"""
 
     tft.init()
-    tft.fill(st7789.BLACK)
+    tft.fill(jd9853.BLACK)
 
     height = tft.height()
     width = tft.width()
@@ -101,11 +101,11 @@ def main():
                 row = (scroll + height - ((i + 1) * font[0].HEIGHT) % height)   # row to draw
                 tft.draw(font[0], word, col, row, color)                        # draw the word
 
-        tft.fill_rect(0, scroll, width, 1, st7789.BLACK)    # clear the top line
+        tft.fill_rect(0, scroll, width, 1, jd9853.BLACK)    # clear the top line
         tft.vscsad(scroll+tfa)                              # scroll the display
         scroll = (scroll+1) % height                        # update the scroll position
         to_scroll -= 1                                      # update rows left to scroll
-        utime.sleep(0.02)                                   # stop and smell the roses
+        time.sleep(0.02)                                   # stop and smell the roses
 
 
 main()
