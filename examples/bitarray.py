@@ -7,7 +7,7 @@ bitarray.py
 
 import time
 import random
-import st7789
+import jd9853
 import tft_config
 
 
@@ -141,7 +141,7 @@ def main():
 
     # enable display and clear screen
     tft.init()
-    tft.fill(st7789.BLACK)
+    tft.fill(jd9853.BLACK)
 
     # convert bitmaps into rgb565 blitable buffers
     blitable = []
@@ -151,8 +151,8 @@ def main():
             sprite_bitmap,
             sprite,
             SPRITE_WIDTH,
-            st7789.YELLOW,
-            st7789.BLACK)
+            jd9853.YELLOW,
+            jd9853.BLACK)
         blitable.append(sprite)
 
     sprite_count = tft.width() // SPRITE_WIDTH * tft.height() // SPRITE_HEIGHT // 4
