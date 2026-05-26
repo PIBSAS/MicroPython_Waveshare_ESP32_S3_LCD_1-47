@@ -1,7 +1,7 @@
 """
 pinball.py - Minimal pinball game in MicroPython based on code from Ten Minute Physics Tutorial
 "How to write a pinball simulation" for using the display driver from
-https://github.com/russhughes/st7789_mpy.
+https://github.com/russhughes/jd9853_mpy.
 
 Tutorial Links:
 https://matthias-research.github.io/pages/tenMinutePhysics/
@@ -46,12 +46,13 @@ SOFTWARE.
 import time
 import random
 import math
-from machine import Pin
+from machine import Pin, I2C
 import vga1_8x8 as font
 import vga1_bold_16x32 as bold_font
-import st7789
+import jd9853
 import tft_config
 import tft_buttons
+import axs5106
 
 
 def color_wheel(WheelPos):
@@ -59,14 +60,14 @@ def color_wheel(WheelPos):
     WheelPos = (255 - WheelPos) % 255
 
     if WheelPos < 85:
-        return st7789.color565(255 - WheelPos * 3, 0, WheelPos * 3)
+        return jd9853.color565(255 - WheelPos * 3, 0, WheelPos * 3)
 
     if WheelPos < 170:
         WheelPos -= 85
-        return st7789.color565(0, WheelPos * 3, 255 - WheelPos * 3)
+        return jd9853.color565(0, WheelPos * 3, 255 - WheelPos * 3)
 
     WheelPos -= 170
-    return st7789.color565(WheelPos * 3, 255 - WheelPos * 3, 0)
+    return jd9853.color565(WheelPos * 3, 255 - WheelPos * 3, 0)
 
 
 def text_color():
@@ -97,7 +98,7 @@ def pos_to_tuple(pos):
 
 class Vector2:
 
-    def __init__(self, x=0.0, y=0.0, c=st7789.WHITE):
+    def __init__(self, x=0.0, y=0.0, c=jd9853.WHITE):
         """create a new vector"""
         self.x = x
         self.y = y
@@ -269,7 +270,7 @@ class Flipper:
         sin_angle = math.sin(angle)
         return Vector2(cos_angle, sin_angle)
 
-    def draw(self, rotation=None, color=st7789.WHITE):
+    def draw(self, rotation=None, color=jd9853.WHITE):
         """draw the flipper"""
         if rotation is None:
             rotation = self.rotation
@@ -353,14 +354,14 @@ class Table():
         # obstacles
         self.obstacles = [
             Obstacle(0.04, Vector2(0.10, 1.68), 0.8),
-            Obstacle(0.08, Vector2(0.5, 1.45, st7789.RED), 1.5),
-            Obstacle(0.08, Vector2(0.74, 1.2, st7789.RED), 1.5),
-            Obstacle(0.08, Vector2(0.26, 1.2, st7789.RED), 1.5),
-            Obstacle(0.08, Vector2(0.5, 0.95, st7789.RED), 1.5),
-            Obstacle(0.04, Vector2(0.13, 0.8, st7789.YELLOW), 1.5),
-            Obstacle(0.04, Vector2(0.87, 0.8, st7789.YELLOW), 1.5),
-            Obstacle(0.04, Vector2(0.15, 0.6, st7789.GREEN), 1.5),
-            Obstacle(0.04, Vector2(0.85, 0.6, st7789.GREEN), 1.5)]
+            Obstacle(0.08, Vector2(0.5, 1.45, jd9853.RED), 1.5),
+            Obstacle(0.08, Vector2(0.74, 1.2, jd9853.RED), 1.5),
+            Obstacle(0.08, Vector2(0.26, 1.2, jd9853.RED), 1.5),
+            Obstacle(0.08, Vector2(0.5, 0.95, jd9853.RED), 1.5),
+            Obstacle(0.04, Vector2(0.13, 0.8, jd9853.YELLOW), 1.5),
+            Obstacle(0.04, Vector2(0.87, 0.8, jd9853.YELLOW), 1.5),
+            Obstacle(0.04, Vector2(0.15, 0.6, jd9853.GREEN), 1.5),
+            Obstacle(0.04, Vector2(0.85, 0.6, jd9853.GREEN), 1.5)]
 
         # flippers
         radius = 0.035
@@ -393,7 +394,7 @@ class Table():
         """add a ball to the table"""
         radius = 0.03
         mass = math.pi * radius * radius
-        pos = Vector2(0.95, 0.5, st7789.WHITE)
+        pos = Vector2(0.95, 0.5, jd9853.WHITE)
         vel = Vector2(0, random.uniform(1.5, 3))
         self.balls.append(Ball(radius, mass, pos, vel, 0.2))
 
@@ -412,7 +413,7 @@ class Table():
 
     def draw_border(self):
         """draw the walls of the table"""
-        tft.polygon(self.wall, 0, 0, st7789.WHITE)
+        tft.polygon(self.wall, 0, 0, jd9853.WHITE)
 
     def draw_balls(self):
         """draw the balls on the table"""
@@ -615,19 +616,19 @@ def handle_ball_border_collision(ball, border):
 # ------------ Text routines ------------
 
 
-def center_on(text, y, color=st7789.WHITE, fnt=font):
+def center_on(text, y, color=jd9853.WHITE, fnt=font):
     """center text on y"""
     x = (WIDTH >> 1) - ((fnt.WIDTH * len(text)) >> 1)
     tft.text(fnt, text, x, int(HEIGHT - y * SCALE_Y), color, BACKGROUND)
 
 
-def print_at(text, x, y, color=st7789.WHITE, fnt=font):
+def print_at(text, x, y, color=jd9853.WHITE, fnt=font):
     """print text at x,y"""
     tft.text(fnt, text, int(x * SCALE_X),
              int(HEIGHT - y * SCALE_Y), color, BACKGROUND)
 
 
-def print_right(text, y, color=st7789.WHITE, fnt=font):
+def print_right(text, y, color=jd9853.WHITE, fnt=font):
     """print text right aligned at y"""
     x = WIDTH - (fnt.WIDTH * len(text))
     tft.text(fnt, text, x, int(HEIGHT - y * SCALE_Y), color, BACKGROUND)
@@ -647,16 +648,16 @@ def update_ball():
 def ball_countdown():
     """countdown before the ball is released"""
     for i in range(3, 0, -1):
-        center_on(f'{i}', 1.3, st7789.WHITE, bold_font)
+        center_on(f'{i}', 1.3, jd9853.WHITE, bold_font)
         time.sleep(1)
 
-    center_on(' ', 1.3, st7789.WHITE, bold_font)
+    center_on(' ', 1.3, jd9853.WHITE, bold_font)
     if REDRAW_EVERY_FRAME is False:
         table.draw_border()
         table.draw_obstacles()
 
 
-def print_game_over(color=st7789.RED):
+def print_game_over(color=jd9853.RED):
     """print game over"""
     center_on("GAME", 1.65, color, bold_font)
     center_on("OVER", 1.30, color, bold_font)
@@ -684,7 +685,85 @@ def game_over():
 
     tft.fill(BACKGROUND)
 
+# ------------ Touch handling ------------
 
+
+class TouchController:
+    """Wrapper for touch controller with debouncing"""
+    
+    def __init__(self, i2c, addr=0x63, width=172, height=320):
+        self.touch = axs5106.AXS5106(i2c, address=addr, width=width, height=height)
+        self.left_pressed = False
+        self.right_pressed = False
+        self.debounce_time = 0.1
+        self.last_touch_time = 0
+        
+        # Zonas táctiles para los flippers
+        self.left_zone = (0, 0, width // 2, height)
+        self.right_zone = (width // 2, 0, width // 2, height)
+        
+    def update(self):
+        """Actualizar estado de los flippers por tacto"""
+        current_time = time.time()
+        touches = self.touch.touches()
+        
+        left_active = False
+        right_active = False
+        
+        for touch in touches:
+            x, y = touch['x'], touch['y']
+            
+            # Verificar zona izquierda
+            if (self.left_zone[0] <= x <= self.left_zone[0] + self.left_zone[2] and
+                self.left_zone[1] <= y <= self.left_zone[1] + self.left_zone[3]):
+                left_active = True
+                
+            # Verificar zona derecha
+            if (self.right_zone[0] <= x <= self.right_zone[0] + self.right_zone[2] and
+                self.right_zone[1] <= y <= self.right_zone[1] + self.right_zone[3]):
+                right_active = True
+        
+        # Aplicar debounce
+        if current_time - self.last_touch_time > self.debounce_time:
+            self.left_pressed = left_active
+            self.right_pressed = right_active
+            self.last_touch_time = current_time
+
+
+def get_flipper_state():
+    """Obtener estado de los flippers (botones o táctil)"""
+    left = False
+    right = False
+    
+    # Botones físicos
+    if buttons_enabled:
+        if buttons.name in ('tdisplay_esp32', 'tdisplay_rp2040', 't-display-s3'):
+            left = left_flipper.value() == 0
+            right = right_flipper.value() == 0
+        elif buttons.name == 'ws_pico_114':
+            left = left_flipper.value() == 0
+            right = right_flipper.value() == 0
+        elif buttons.name == 'ws_pico_13':
+            left = left_flipper.value() == 0
+            right = right_flipper.value() == 0
+        elif buttons.name == 'ws_pico_2':
+            left = left_flipper.value() == 0
+            right = right_flipper.value() == 0
+        elif buttons.name == 'wio_terminal':
+            left = left_flipper.value() == 0
+            right = right_flipper.value() == 0
+        elif buttons.name == 't-dongle-s3':
+            left = left_flipper.value() == 0
+            right = left  # Mismo botón para ambos
+    
+    # Tactil (si está disponible)
+    if touch_enabled and touch:
+        touch.update()
+        left = left or touch.left_pressed
+        right = right or touch.right_pressed
+    
+    return left, right
+    
 # ------------ the big show ------------
 
 
@@ -699,8 +778,11 @@ def start_game():
             while table.game_over is False:
                 last = time.ticks_ms()
 
-                table.flippers[0].pressed = left_flipper.value() == 0
-                table.flippers[1].pressed = right_flipper.value() == 0
+                left, right = get_flipper_state()
+                table.flippers[0].pressed = left
+                table.flippers[1].pressed = right
+                #table.flippers[0].pressed = left_flipper.value() == 0
+                #table.flippers[1].pressed = right_flipper.value() == 0
                 table.simulate()
 
                 if REDRAW_EVERY_FRAME:
@@ -730,8 +812,9 @@ def start_game():
 FPS = const(30)                 # frames per second
 FLIPPER_SPEED = const(10)       # flipper speed
 MULTIBALL_SCORE = const(30)     # points to start multiball
-BACKGROUND = st7789.BLUE        # My favorite color
+BACKGROUND = jd9853.BLUE        # My favorite color
 REDRAW_EVERY_FRAME = True
+TOUCH_ENABLED = True            # Habilitar soporte táctil
 
 # ------------ set up the display ------------
 
@@ -746,6 +829,21 @@ MAX_HEIGHT = 1.88
 SCALE_X = WIDTH
 SCALE_Y = HEIGHT / MAX_HEIGHT
 SCALE_RADIUS = min(SCALE_X, SCALE_Y)
+
+# ------------ Inicializar táctil ------------
+
+touch = None
+touch_enabled = False
+
+if TOUCH_ENABLED:
+    try:
+        i2c = I2C(0, scl=Pin(42), sda=Pin(41), freq=400000)  # Ajusta pines según tu hardware
+        touch = TouchController(i2c, width=WIDTH, height=HEIGHT)
+        touch_enabled = True
+        print("Touch controller initialized")
+    except Exception as e:
+        print(f"Touch controller not found: {e}")
+        touch_enabled = False
 
 # ------------ tft_buttons.py configs for different devices ------------
 
@@ -787,6 +885,11 @@ elif buttons.name == 't-dongle-s3':     # not practical, but why not
     right_flipper = buttons.button
     REDRAW_EVERY_FRAME = False
 
+else:
+    # Si no hay botones configurados, deshabilitar botones (solo táctil)
+    buttons_enabled = False
+    left_flipper = None
+    right_flipper = None
 
 table = Table()
 start_game()
