@@ -5,8 +5,8 @@ fonts.py
 
 """
 
-import utime
-import st7789
+import time
+import jd9853
 import tft_config
 import vga1_8x8 as font1
 import vga1_8x16 as font2
@@ -22,22 +22,22 @@ def main():
 
     while True:
         for font in (font1, font2, font3, font4):
-            tft.fill(st7789.BLUE)
+            tft.fill(jd9853.BLUE)
             line = 0
             col = 0
             for char in range(font.FIRST, font.LAST):
-                tft.text(font, chr(char), col, line, st7789.WHITE, st7789.BLUE)
+                tft.text(font, chr(char), col, line, jd9853.WHITE, jd9853.BLUE)
                 col += font.WIDTH
                 if col > tft.width() - font.WIDTH:
                     col = 0
                     line += font.HEIGHT
 
                     if line > tft.height()-font.HEIGHT:
-                        utime.sleep(3)
-                        tft.fill(st7789.BLUE)
+                        time.sleep(3)
+                        tft.fill(jd9853.BLUE)
                         line = 0
                         col = 0
 
-            utime.sleep(3)
+            time.sleep(3)
 
 main()
