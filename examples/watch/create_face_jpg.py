@@ -6,7 +6,7 @@ import math
 from PIL import Image, ImageDraw, ImageFont
 
 width = 320                     # width of the display
-height = 240                    # height of the display
+height = 172                    # height of the display
 face = min(width, height)       # face is the smaller of the two
 ofs = (width - face) // 2       # offset from the left side of the display
 
