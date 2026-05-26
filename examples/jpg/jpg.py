@@ -8,7 +8,7 @@ jpg.py
 """
 
 import random
-import st7789
+import jd9853
 import tft_config
 
 tft = tft_config.config(1)
@@ -19,7 +19,7 @@ def main():
     '''
 
     tft.init()
-    tft.jpg(f'bigbuckbunny-{tft.width()}x{tft.height()}.jpg', 0, 0, st7789.SLOW)
+    tft.jpg(f'bigbuckbunny-{tft.width()}x{tft.height()}.jpg', 0, 0, jd9853.SLOW)
 
 
 main()
