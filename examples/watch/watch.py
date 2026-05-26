@@ -6,9 +6,9 @@ watch.py - Analog Watch Display using jpg for the face and filled polygons for t
     Previous version video: https://youtu.be/NItKb6umMc4
 """
 
-import utime
+import time
 import math
-import st7789
+import jd9853
 import tft_config
 
 
@@ -44,7 +44,7 @@ def main():
 
     # draw the watch face background
     face = "face_{}x{}.jpg".format(width, height)
-    tft.jpg(face, 0, 0, st7789.SLOW)
+    tft.jpg(face, 0, 0, jd9853.SLOW)
 
     # create the polygons for the hour, minute and second hands
     # polygons must be closed convex polygons or bad things(tm) happen.
@@ -77,10 +77,10 @@ def main():
     while True:
         # save the current time in seconds so we can determine when
         # when to update the display.
-        last = utime.time()
+        last = time.time()
 
         # get the current hour, minute and second
-        _, _, _, hour, minute, second, _, _ = utime.localtime()
+        _, _, _, hour, minute, second, _, _ = time.localtime()
 
         # constrain hours to 12 hour time
         hour %= 12
@@ -99,30 +99,30 @@ def main():
 
         # erase the bounding area of the last drawn hour hand
         x1, y1, x2, y2 = hour_bound
-        tft.fill_rect(x1, y1, x2, y2, st7789.WHITE)
+        tft.fill_rect(x1, y1, x2, y2, jd9853.WHITE)
 
         # erase the bounding area of the last drawn minute hand
         x1, y1, x2, y2 = minute_bound
-        tft.fill_rect(x1, y1, x2, y2, st7789.WHITE)
+        tft.fill_rect(x1, y1, x2, y2, jd9853.WHITE)
 
         # erase the bounding area of the last drawn second hand
         x1, y1, x2, y2 = second_bound
-        tft.fill_rect(x1, y1, x2, y2, st7789.WHITE)
+        tft.fill_rect(x1, y1, x2, y2, jd9853.WHITE)
 
         # draw the hub after erasing the bounding areas to reduce flickering
-        tft.fill_circle(center_x, center_y, 5, st7789.BLACK)
+        tft.fill_circle(center_x, center_y, 5, jd9853.BLACK)
 
         tft.bounding(True)      # clear bounding rectangle
 
         # draw and fill the hour hand polygon rotated to hour_ang
-        tft.fill_polygon(hour_poly, center_x, center_y, st7789.BLACK, hour_ang)
+        tft.fill_polygon(hour_poly, center_x, center_y, jd9853.BLACK, hour_ang)
 
         # get the bounding rectangle of the hour_polygon as drawn and
         # reset the bounding box for the next polygon
         hour_bound = tft.bounding(True, True)
 
         # draw and fill the minute hand polygon rotated to minute_ang
-        tft.fill_polygon(minute_poly, center_x, center_y, st7789.BLACK, minute_ang)
+        tft.fill_polygon(minute_poly, center_x, center_y, jd9853.BLACK, minute_ang)
 
         # get the bounding rectangle of the minute_polygon as drawn and
         # reset the bounding box for the next polygon
@@ -130,18 +130,18 @@ def main():
 
         # draw and fill the second hand polygon rotated to second_ang
 
-        tft.fill_polygon(second_poly, center_x, center_y, st7789.RED, second_ang)
+        tft.fill_polygon(second_poly, center_x, center_y, jd9853.RED, second_ang)
 
         # get the bounding rectangle of the second_polygon as drawn and
         # reset the bounding box for the next polygon
         second_bound = tft.bounding(True, True)
 
         # draw the hub again to cover up the second hand
-        tft.fill_circle(center_x, center_y, 5, st7789.BLACK)
+        tft.fill_circle(center_x, center_y, 5, jd9853.BLACK)
 
         # wait until the current second changes
-        while last == utime.time():
-           utime.sleep_ms(50)
+        while last == time.time():
+           time.sleep_ms(50)
 
 
 main()
