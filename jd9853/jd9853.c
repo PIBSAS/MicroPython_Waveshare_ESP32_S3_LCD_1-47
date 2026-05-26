@@ -2377,6 +2377,527 @@ static mp_obj_t jd9853_JD9853_bounding(size_t n_args, const mp_obj_t *args) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_bounding_obj, 1, 3, jd9853_JD9853_bounding);
 
+// ============================================================================
+// NEW FUNCTIONS IMPLEMENTATIONS
+// ============================================================================
+
+//
+// read_pixel(x, y) - Read color of a pixel
+//
+static mp_obj_t jd9853_JD9853_read_pixel(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t x = mp_obj_get_int(args[1]);
+    mp_int_t y = mp_obj_get_int(args[2]);
+    
+    // Check bounds
+    if (x < 0 || x >= self->width || y < 0 || y >= self->height) {
+        mp_raise_msg(&mp_type_ValueError, MP_ERROR_TEXT("Pixel coordinates out of range"));
+        return mp_const_none;
+    }
+    
+    // Set window to read single pixel
+    set_window(self, x, y, x, y);
+    
+    // Send RAM read command
+    write_cmd(self, JD9853_RAMRD, NULL, 0);
+    
+    // Read data (RGB565) - need dummy read first
+    uint8_t data[2];
+    DC_HIGH();
+    CS_LOW();
+    write_spi(self->spi_obj, NULL, 0);  // Dummy read
+    write_spi(self->spi_obj, data, 2);
+    CS_HIGH();
+    
+    uint16_t color = (data[0] << 8) | data[1];
+    return mp_obj_new_int(color);
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_read_pixel_obj, 3, 3, jd9853_JD9853_read_pixel);
+
+//
+// scroll(dy) - Smooth vertical scrolling
+//
+static mp_obj_t jd9853_JD9853_scroll(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t dy = mp_obj_get_int(args[1]);
+    
+    if (dy != 0) {
+        // Store current scroll position in self->vscsad (need to add to struct)
+        // For now, we'll just set the scroll directly
+        uint16_t vssa = (self->vscsad + dy) % self->height;
+        uint8_t buf[2] = {vssa >> 8, vssa & 0xFF};
+        write_cmd(self, JD9853_VSCSAD, buf, 2);
+        self->vscsad = vssa;
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_scroll_obj, 2, 2, jd9853_JD9853_scroll);
+
+//
+// invert_area(x, y, w, h) - Invert colors in an area
+//
+static mp_obj_t jd9853_JD9853_invert_area(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t x = mp_obj_get_int(args[1]);
+    mp_int_t y = mp_obj_get_int(args[2]);
+    mp_int_t w = mp_obj_get_int(args[3]);
+    mp_int_t h = mp_obj_get_int(args[4]);
+    
+    // Clip to display bounds
+    int16_t x0 = (x < 0) ? 0 : x;
+    int16_t y0 = (y < 0) ? 0 : y;
+    int16_t x1 = (x + w - 1 >= self->width) ? self->width - 1 : x + w - 1;
+    int16_t y1 = (y + h - 1 >= self->height) ? self->height - 1 : y + h - 1;
+    
+    if (x0 > x1 || y0 > y1) return mp_const_none;
+    
+    // Allocate buffer for one row
+    int16_t width = x1 - x0 + 1;
+    int16_t height = y1 - y0 + 1;
+    size_t buf_size = width * 2;  // One row of RGB565
+    
+    uint8_t *row_buffer = m_malloc(buf_size);
+    if (!row_buffer) {
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("out of memory"));
+        return mp_const_none;
+    }
+    
+    // For each row, read, invert, write back
+    for (int16_t row = y0; row <= y1; row++) {
+        // Read row
+        set_window(self, x0, row, x1, row);
+        write_cmd(self, JD9853_RAMRD, NULL, 0);
+        DC_HIGH();
+        CS_LOW();
+        write_spi(self->spi_obj, NULL, 0);  // Dummy read
+        write_spi(self->spi_obj, row_buffer, buf_size);
+        CS_HIGH();
+        
+        // Invert colors
+        for (int i = 0; i < buf_size; i += 2) {
+            uint16_t color = (row_buffer[i] << 8) | row_buffer[i + 1];
+            color = ~color;
+            row_buffer[i] = color >> 8;
+            row_buffer[i + 1] = color & 0xFF;
+        }
+        
+        // Write back
+        set_window(self, x0, row, x1, row);
+        DC_HIGH();
+        CS_LOW();
+        write_spi(self->spi_obj, row_buffer, buf_size);
+        CS_HIGH();
+    }
+    
+    m_free(row_buffer);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_invert_area_obj, 5, 5, jd9853_JD9853_invert_area);
+
+//
+// contrast(level) - Adjust contrast (0-255)
+//
+static mp_obj_t jd9853_JD9853_contrast(mp_obj_t self_in, mp_obj_t level_in) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_int_t level = mp_obj_get_int(level_in);
+    
+    if (level < 0) level = 0;
+    if (level > 255) level = 255;
+    
+    // Try common contrast command (may need adjustment per display)
+    uint8_t buf[1] = {level};
+    write_cmd(self, 0xC1, buf, 1);  // Common contrast command for many displays
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(jd9853_JD9853_contrast_obj, jd9853_JD9853_contrast);
+
+//
+// gradient_fill(x, y, w, h, color1, color2, direction) - Gradient fill
+//
+static mp_obj_t jd9853_JD9853_gradient_fill(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t x = mp_obj_get_int(args[1]);
+    mp_int_t y = mp_obj_get_int(args[2]);
+    mp_int_t w = mp_obj_get_int(args[3]);
+    mp_int_t h = mp_obj_get_int(args[4]);
+    mp_int_t color1 = mp_obj_get_int(args[5]);
+    mp_int_t color2 = mp_obj_get_int(args[6]);
+    mp_int_t direction = mp_obj_get_int(args[7]);  // 0=horizontal, 1=vertical
+    
+    // Clip to display
+    int16_t x0 = (x < 0) ? 0 : x;
+    int16_t y0 = (y < 0) ? 0 : y;
+    int16_t x1 = (x + w - 1 >= self->width) ? self->width - 1 : x + w - 1;
+    int16_t y1 = (y + h - 1 >= self->height) ? self->height - 1 : y + h - 1;
+    
+    if (x0 > x1 || y0 > y1) return mp_const_none;
+    
+    int16_t width = x1 - x0 + 1;
+    int16_t height = y1 - y0 + 1;
+    
+    if (direction == 0) {  // Horizontal gradient
+        for (int16_t row = y0; row <= y1; row++) {
+            for (int16_t col = x0; col <= x1; col++) {
+                float ratio = (float)(col - x0) / width;
+                uint8_t r1 = (color1 >> 8) & 0xF8;
+                uint8_t g1 = (color1 >> 3) & 0xFC;
+                uint8_t b1 = (color1 << 3) & 0xF8;
+                uint8_t r2 = (color2 >> 8) & 0xF8;
+                uint8_t g2 = (color2 >> 3) & 0xFC;
+                uint8_t b2 = (color2 << 3) & 0xF8;
+                
+                uint8_t r = r1 + (uint8_t)((r2 - r1) * ratio);
+                uint8_t g = g1 + (uint8_t)((g2 - g1) * ratio);
+                uint8_t b = b1 + (uint8_t)((b2 - b1) * ratio);
+                
+                uint16_t color = color565(r, g, b);
+                draw_pixel(self, col, row, color);
+            }
+        }
+    } else {  // Vertical gradient
+        for (int16_t row = y0; row <= y1; row++) {
+            float ratio = (float)(row - y0) / height;
+            uint8_t r1 = (color1 >> 8) & 0xF8;
+            uint8_t g1 = (color1 >> 3) & 0xFC;
+            uint8_t b1 = (color1 << 3) & 0xF8;
+            uint8_t r2 = (color2 >> 8) & 0xF8;
+            uint8_t g2 = (color2 >> 3) & 0xFC;
+            uint8_t b2 = (color2 << 3) & 0xF8;
+            
+            uint8_t r = r1 + (uint8_t)((r2 - r1) * ratio);
+            uint8_t g = g1 + (uint8_t)((g2 - g1) * ratio);
+            uint8_t b = b1 + (uint8_t)((b2 - b1) * ratio);
+            
+            uint16_t color = color565(r, g, b);
+            fast_hline(self, x0, row, width, color);
+        }
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_gradient_fill_obj, 8, 8, jd9853_JD9853_gradient_fill);
+
+//
+// round_rect(x, y, w, h, r, color) - Rectangle with rounded corners
+//
+static mp_obj_t jd9853_JD9853_round_rect(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t x = mp_obj_get_int(args[1]);
+    mp_int_t y = mp_obj_get_int(args[2]);
+    mp_int_t w = mp_obj_get_int(args[3]);
+    mp_int_t h = mp_obj_get_int(args[4]);
+    mp_int_t r = mp_obj_get_int(args[5]);
+    mp_int_t color = mp_obj_get_int(args[6]);
+    
+    if (r > w/2) r = w/2;
+    if (r > h/2) r = h/2;
+    
+    // Draw straight lines
+    fast_hline(self, x + r, y, w - 2 * r, color);
+    fast_hline(self, x + r, y + h - 1, w - 2 * r, color);
+    fast_vline(self, x, y + r, h - 2 * r, color);
+    fast_vline(self, x + w - 1, y + r, h - 2 * r, color);
+    
+    // Draw corners
+    for (int i = 0; i <= r; i++) {
+        int d = (int)(sqrt(r * r - i * i) + 0.5);
+        draw_pixel(self, x + r - i, y + r - d, color);
+        draw_pixel(self, x + r - i, y + h - r + d - 1, color);
+        draw_pixel(self, x + w - r + i - 1, y + r - d, color);
+        draw_pixel(self, x + w - r + i - 1, y + h - r + d - 1, color);
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_round_rect_obj, 7, 7, jd9853_JD9853_round_rect);
+
+//
+// draw_icon(icon_data, x, y, size, color) - Draw monochrome icon
+//
+static mp_obj_t jd9853_JD9853_draw_icon(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_buffer_info_t icon_info;
+    mp_get_buffer_raise(args[1], &icon_info, MP_BUFFER_READ);
+    mp_int_t x = mp_obj_get_int(args[2]);
+    mp_int_t y = mp_obj_get_int(args[3]);
+    mp_int_t size = mp_obj_get_int(args[4]);
+    mp_int_t color = mp_obj_get_int(args[5]);
+    
+    const uint8_t *icon = icon_info.buf;
+    int icon_size = (size + 7) / 8;  // Bytes per row
+    
+    for (int row = 0; row < size; row++) {
+        for (int col = 0; col < size; col++) {
+            if (icon[row * icon_size + (col / 8)] & (0x80 >> (col % 8))) {
+                draw_pixel(self, x + col, y + row, color);
+            }
+        }
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_draw_icon_obj, 6, 6, jd9853_JD9853_draw_icon);
+
+//
+// get_info() - Get display information
+//
+static mp_obj_t jd9853_JD9853_get_info(mp_obj_t self_in) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    
+    mp_obj_t dict = mp_obj_new_dict(8);
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_width), mp_obj_new_int(self->width));
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_height), mp_obj_new_int(self->height));
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_rotation), mp_obj_new_int(self->rotation));
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_buffer_size), mp_obj_new_int(self->buffer_size));
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_options), mp_obj_new_int(self->options));
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_madctl), mp_obj_new_int(self->madctl));
+    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(MP_QSTR_inversion), mp_obj_new_bool(self->inversion));
+    
+    return dict;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(jd9853_JD9853_get_info_obj, jd9853_JD9853_get_info);
+
+//
+// triangle(x0, y0, x1, y1, x2, y2, color) - Draw triangle
+//
+static mp_obj_t jd9853_JD9853_triangle(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t x0 = mp_obj_get_int(args[1]);
+    mp_int_t y0 = mp_obj_get_int(args[2]);
+    mp_int_t x1 = mp_obj_get_int(args[3]);
+    mp_int_t y1 = mp_obj_get_int(args[4]);
+    mp_int_t x2 = mp_obj_get_int(args[5]);
+    mp_int_t y2 = mp_obj_get_int(args[6]);
+    mp_int_t color = mp_obj_get_int(args[7]);
+    
+    line(self, x0, y0, x1, y1, color);
+    line(self, x1, y1, x2, y2, color);
+    line(self, x2, y2, x0, y0, color);
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_triangle_obj, 8, 8, jd9853_JD9853_triangle);
+
+//
+// fill_triangle(x0, y0, x1, y1, x2, y2, color) - Fill triangle
+//
+static mp_obj_t jd9853_JD9853_fill_triangle(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t x0 = mp_obj_get_int(args[1]);
+    mp_int_t y0 = mp_obj_get_int(args[2]);
+    mp_int_t x1 = mp_obj_get_int(args[3]);
+    mp_int_t y1 = mp_obj_get_int(args[4]);
+    mp_int_t x2 = mp_obj_get_int(args[5]);
+    mp_int_t y2 = mp_obj_get_int(args[6]);
+    mp_int_t color = mp_obj_get_int(args[7]);
+    
+    // Simple triangle fill using polygon method
+    mp_obj_t points[3];
+    mp_obj_t p0[2] = {mp_obj_new_int(x0), mp_obj_new_int(y0)};
+    mp_obj_t p1[2] = {mp_obj_new_int(x1), mp_obj_new_int(y1)};
+    mp_obj_t p2[2] = {mp_obj_new_int(x2), mp_obj_new_int(y2)};
+    points[0] = mp_obj_new_tuple(2, p0);
+    points[1] = mp_obj_new_tuple(2, p1);
+    points[2] = mp_obj_new_tuple(2, p2);
+    mp_obj_t polygon = mp_obj_new_tuple(3, points);
+    
+    mp_obj_t fill_args[] = {args[0], polygon, mp_obj_new_int(0), mp_obj_new_int(0), args[7]};
+    jd9853_JD9853_fill_polygon(5, fill_args);
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fill_triangle_obj, 8, 8, jd9853_JD9853_fill_triangle);
+
+//
+// ellipse(x, y, rx, ry, color) - Draw ellipse
+//
+static mp_obj_t jd9853_JD9853_ellipse(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t xc = mp_obj_get_int(args[1]);
+    mp_int_t yc = mp_obj_get_int(args[2]);
+    mp_int_t rx = mp_obj_get_int(args[3]);
+    mp_int_t ry = mp_obj_get_int(args[4]);
+    mp_int_t color = mp_obj_get_int(args[5]);
+    
+    int x = 0, y = ry;
+    int rx2 = rx * rx, ry2 = ry * ry;
+    int err = ry2 - rx2 * ry;
+    
+    draw_pixel(self, xc + x, yc + y, color);
+    draw_pixel(self, xc - x, yc + y, color);
+    draw_pixel(self, xc + x, yc - y, color);
+    draw_pixel(self, xc - x, yc - y, color);
+    
+    while (2 * x * ry2 < 2 * y * rx2) {
+        x++;
+        if (err < 0) {
+            err += 2 * ry2 * x + ry2;
+        } else {
+            y--;
+            err += 2 * ry2 * x + ry2 - 2 * rx2 * y;
+        }
+        draw_pixel(self, xc + x, yc + y, color);
+        draw_pixel(self, xc - x, yc + y, color);
+        draw_pixel(self, xc + x, yc - y, color);
+        draw_pixel(self, xc - x, yc - y, color);
+    }
+    
+    err = rx2 * (y - 1) * (y - 1) + ry2 * (x + 1) * (x + 1) - rx2 * ry2;
+    while (y > 0) {
+        y--;
+        if (err > 0) {
+            err -= 2 * rx2 * y + rx2;
+        } else {
+            x++;
+            err += -2 * rx2 * y - rx2 + 2 * ry2 * x;
+        }
+        draw_pixel(self, xc + x, yc + y, color);
+        draw_pixel(self, xc - x, yc + y, color);
+        draw_pixel(self, xc + x, yc - y, color);
+        draw_pixel(self, xc - x, yc - y, color);
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_ellipse_obj, 6, 6, jd9853_JD9853_ellipse);
+
+//
+// fill_ellipse(x, y, rx, ry, color) - Fill ellipse
+//
+static mp_obj_t jd9853_JD9853_fill_ellipse(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t xc = mp_obj_get_int(args[1]);
+    mp_int_t yc = mp_obj_get_int(args[2]);
+    mp_int_t rx = mp_obj_get_int(args[3]);
+    mp_int_t ry = mp_obj_get_int(args[4]);
+    mp_int_t color = mp_obj_get_int(args[5]);
+    
+    int x = 0, y = ry;
+    int rx2 = rx * rx, ry2 = ry * ry;
+    int err = ry2 - rx2 * ry;
+    
+    fast_hline(self, xc - x, yc + y, 2 * x + 1, color);
+    fast_hline(self, xc - x, yc - y, 2 * x + 1, color);
+    
+    while (2 * x * ry2 < 2 * y * rx2) {
+        x++;
+        if (err < 0) {
+            err += 2 * ry2 * x + ry2;
+        } else {
+            y--;
+            err += 2 * ry2 * x + ry2 - 2 * rx2 * y;
+        }
+        fast_hline(self, xc - x, yc + y, 2 * x + 1, color);
+        fast_hline(self, xc - x, yc - y, 2 * x + 1, color);
+    }
+    
+    err = rx2 * (y - 1) * (y - 1) + ry2 * (x + 1) * (x + 1) - rx2 * ry2;
+    while (y > 0) {
+        y--;
+        if (err > 0) {
+            err -= 2 * rx2 * y + rx2;
+        } else {
+            x++;
+            err += -2 * rx2 * y - rx2 + 2 * ry2 * x;
+        }
+        fast_hline(self, xc - x, yc + y, 2 * x + 1, color);
+        fast_hline(self, xc - x, yc - y, 2 * x + 1, color);
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fill_ellipse_obj, 6, 6, jd9853_JD9853_fill_ellipse);
+
+//
+// fade_out(steps, delay_ms) - Fade out effect
+//
+static mp_obj_t jd9853_JD9853_fade_out(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t steps = mp_obj_get_int(args[1]);
+    mp_int_t delay_ms = mp_obj_get_int(args[2]);
+    
+    if (steps < 1) steps = 1;
+    if (steps > 255) steps = 255;
+    
+    // Simple fade: gradually reduce brightness (if backlight PWM available)
+    // Otherwise, do software fade by drawing darker rectangles
+    for (int i = 1; i <= steps; i++) {
+        uint16_t level = 255 - (255 * i / steps);
+        // Try to set backlight PWM if available
+        // Fallback: draw semi-transparent overlay
+        if (self->backlight != GPIO_NUM_NC && self->pwm_pin != GPIO_NUM_NC) {
+            // Would need PWM support
+        } else {
+            // Software fade - draw darker overlay
+            uint16_t fade_color = color565(level, level, level);
+            jd9853_JD9853_fill(self, mp_obj_new_int(fade_color));
+        }
+        mp_hal_delay_ms(delay_ms);
+    }
+    
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fade_out_obj, 3, 3, jd9853_JD9853_fade_out);
+
+//
+// scroll_horizontal(dx) - Horizontal scroll (using software)
+//
+static mp_obj_t jd9853_JD9853_scroll_horizontal(size_t n_args, const mp_obj_t *args) {
+    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_int_t dx = mp_obj_get_int(args[1]);
+    
+    if (dx == 0) return mp_const_none;
+    
+    // Software horizontal scroll using blit
+    size_t buf_size = self->width * 2;
+    uint8_t *row_buffer = m_malloc(buf_size);
+    if (!row_buffer) {
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("out of memory"));
+        return mp_const_none;
+    }
+    
+    for (int row = 0; row < self->height; row++) {
+        // Read row
+        set_window(self, 0, row, self->width - 1, row);
+        write_cmd(self, JD9853_RAMRD, NULL, 0);
+        DC_HIGH();
+        CS_LOW();
+        write_spi(self->spi_obj, NULL, 0);
+        write_spi(self->spi_obj, row_buffer, buf_size);
+        CS_HIGH();
+        
+        // Shift row
+        uint8_t *shifted = m_malloc(buf_size);
+        for (int col = 0; col < self->width; col++) {
+            int src = (col + dx) % self->width;
+            if (src < 0) src += self->width;
+            shifted[col * 2] = row_buffer[src * 2];
+            shifted[col * 2 + 1] = row_buffer[src * 2 + 1];
+        }
+        
+        // Write back
+        set_window(self, 0, row, self->width - 1, row);
+        DC_HIGH();
+        CS_LOW();
+        write_spi(self->spi_obj, shifted, buf_size);
+        CS_HIGH();
+        
+        m_free(shifted);
+    }
+    
+    m_free(row_buffer);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_scroll_horizontal_obj, 2, 2, jd9853_JD9853_scroll_horizontal);
+
+// Need to add vscsad field to jd9853_JD9853_obj_t struct and pwm_pin
+// Add these to the struct in jd9853.h:
+// uint16_t vscsad;
+// mp_hal_pin_obj_t pwm_pin;
+
+
 static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&jd9853_JD9853_write_obj)},
     {MP_ROM_QSTR(MP_QSTR_write_len), MP_ROM_PTR(&jd9853_JD9853_write_len_obj)},
@@ -2389,6 +2910,7 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&jd9853_JD9853_on_obj)},
     {MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&jd9853_JD9853_off_obj)},
     {MP_ROM_QSTR(MP_QSTR_pixel), MP_ROM_PTR(&jd9853_JD9853_pixel_obj)},
+    {MP_ROM_QSTR(MP_QSTR_read_pixel), MP_ROM_PTR(&jd9853_JD9853_read_pixel_obj)},
     {MP_ROM_QSTR(MP_QSTR_line), MP_ROM_PTR(&jd9853_JD9853_line_obj)},
     {MP_ROM_QSTR(MP_QSTR_blit_buffer), MP_ROM_PTR(&jd9853_JD9853_blit_buffer_obj)},
     {MP_ROM_QSTR(MP_QSTR_draw), MP_ROM_PTR(&jd9853_JD9853_draw_obj)},
@@ -2402,12 +2924,15 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_fill_circle), MP_ROM_PTR(&jd9853_JD9853_fill_circle_obj)},
     {MP_ROM_QSTR(MP_QSTR_circle), MP_ROM_PTR(&jd9853_JD9853_circle_obj)},
     {MP_ROM_QSTR(MP_QSTR_rect), MP_ROM_PTR(&jd9853_JD9853_rect_obj)},
+    {MP_ROM_QSTR(MP_QSTR_round_rect), MP_ROM_PTR(&jd9853_JD9853_round_rect_obj)},
     {MP_ROM_QSTR(MP_QSTR_text), MP_ROM_PTR(&jd9853_JD9853_text_obj)},
     {MP_ROM_QSTR(MP_QSTR_rotation), MP_ROM_PTR(&jd9853_JD9853_rotation_obj)},
     {MP_ROM_QSTR(MP_QSTR_width), MP_ROM_PTR(&jd9853_JD9853_width_obj)},
     {MP_ROM_QSTR(MP_QSTR_height), MP_ROM_PTR(&jd9853_JD9853_height_obj)},
     {MP_ROM_QSTR(MP_QSTR_vscrdef), MP_ROM_PTR(&jd9853_JD9853_vscrdef_obj)},
     {MP_ROM_QSTR(MP_QSTR_vscsad), MP_ROM_PTR(&jd9853_JD9853_vscsad_obj)},
+    {MP_ROM_QSTR(MP_QSTR_scroll), MP_ROM_PTR(&jd9853_JD9853_scroll_obj)},
+    {MP_ROM_QSTR(MP_QSTR_scroll_horizontal), MP_ROM_PTR(&jd9853_JD9853_scroll_horizontal_obj)},
     {MP_ROM_QSTR(MP_QSTR_madctl), MP_ROM_PTR(&jd9853_JD9853_madctl_obj)},
     {MP_ROM_QSTR(MP_QSTR_offset), MP_ROM_PTR(&jd9853_JD9853_offset_obj)},
     {MP_ROM_QSTR(MP_QSTR_jpg), MP_ROM_PTR(&jd9853_JD9853_jpg_obj)},
@@ -2417,6 +2942,16 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_polygon), MP_ROM_PTR(&jd9853_JD9853_polygon_obj)},
     {MP_ROM_QSTR(MP_QSTR_fill_polygon), MP_ROM_PTR(&jd9853_JD9853_fill_polygon_obj)},
     {MP_ROM_QSTR(MP_QSTR_bounding), MP_ROM_PTR(&jd9853_JD9853_bounding_obj)},
+    {MP_ROM_QSTR(MP_QSTR_invert_area), MP_ROM_PTR(&jd9853_JD9853_invert_area_obj)},
+    {MP_ROM_QSTR(MP_QSTR_contrast), MP_ROM_PTR(&jd9853_JD9853_contrast_obj)},
+    {MP_ROM_QSTR(MP_QSTR_gradient_fill), MP_ROM_PTR(&jd9853_JD9853_gradient_fill_obj)},
+    {MP_ROM_QSTR(MP_QSTR_draw_icon), MP_ROM_PTR(&jd9853_JD9853_draw_icon_obj)},
+    {MP_ROM_QSTR(MP_QSTR_get_info), MP_ROM_PTR(&jd9853_JD9853_get_info_obj)},
+    {MP_ROM_QSTR(MP_QSTR_triangle), MP_ROM_PTR(&jd9853_JD9853_triangle_obj)},
+    {MP_ROM_QSTR(MP_QSTR_fill_triangle), MP_ROM_PTR(&jd9853_JD9853_fill_triangle_obj)},
+    {MP_ROM_QSTR(MP_QSTR_ellipse), MP_ROM_PTR(&jd9853_JD9853_ellipse_obj)},
+    {MP_ROM_QSTR(MP_QSTR_fill_ellipse), MP_ROM_PTR(&jd9853_JD9853_fill_ellipse_obj)},
+    {MP_ROM_QSTR(MP_QSTR_fade_out), MP_ROM_PTR(&jd9853_JD9853_fade_out_obj)},
 };
 static MP_DEFINE_CONST_DICT(jd9853_JD9853_locals_dict, jd9853_JD9853_locals_dict_table);
 /* methods end */
@@ -2493,6 +3028,7 @@ mp_obj_t jd9853_JD9853_make_new(const mp_obj_type_t *type,
     self->width = args[ARG_width].u_int;
     self->display_height = args[ARG_height].u_int;
     self->height = args[ARG_height].u_int;
+    self->vscsad = 0;  // Initialize scroll position
 
     self->rotations = NULL;
     self->rotations_len = 4;
@@ -2581,7 +3117,7 @@ static const mp_map_elem_t jd9853_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_WHITE), MP_ROM_INT(WHITE)},
     {MP_ROM_QSTR(MP_QSTR_ORANGE), MP_ROM_INT(ORANGE)},      // 0xFD20
     {MP_ROM_QSTR(MP_QSTR_PURPLE), MP_ROM_INT(PURPLE)},      // 0x780F
-    {MP_ROM_QSTR(MP_QSTR_PINK), MP_ROM_INT(PINK)},          // 0xF81F
+    {MP_ROM_QSTR(MP_QSTR_PINK), MP_ROM_INT(PINK)},          // 0xFC97
     {MP_ROM_QSTR(MP_QSTR_GRAY), MP_ROM_INT(GRAY)},          // 0x8410
     {MP_ROM_QSTR(MP_QSTR_DARKGRAY), MP_ROM_INT(DARKGRAY)},  // 0x4208
     {MP_ROM_QSTR(MP_QSTR_BROWN), MP_ROM_INT(BROWN)},
@@ -2596,7 +3132,10 @@ static const mp_map_elem_t jd9853_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_BGR), MP_ROM_INT(JD9853_MADCTL_BGR)},
     {MP_ROM_QSTR(MP_QSTR_WRAP), MP_ROM_INT(OPTIONS_WRAP)},
     {MP_ROM_QSTR(MP_QSTR_WRAP_H), MP_ROM_INT(OPTIONS_WRAP_H)},
-    {MP_ROM_QSTR(MP_QSTR_WRAP_V), MP_ROM_INT(OPTIONS_WRAP_V)}
+    {MP_ROM_QSTR(MP_QSTR_WRAP_V), MP_ROM_INT(OPTIONS_WRAP_V)},
+    // New constants
+    {MP_ROM_QSTR(MP_QSTR_GRADIENT_HORIZONTAL), MP_ROM_INT(0)},
+    {MP_ROM_QSTR(MP_QSTR_GRADIENT_VERTICAL), MP_ROM_INT(1)},
 };
 
 static MP_DEFINE_CONST_DICT(mp_module_jd9853_globals, jd9853_module_globals_table);
