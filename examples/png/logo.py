@@ -9,7 +9,7 @@ logo.py
 
 import gc
 from time import sleep, ticks_ms
-import st7789
+import jd9853
 import tft_config
 
 LOGOS = (
@@ -37,7 +37,7 @@ def main():
     tft.init()
 
     for width, height in LOGOS:
-        tft.fill(st7789.BLACK)
+        tft.fill(jd9853.BLACK)
         png_file_name = f'logo-{width}x{height}.png'
         start = ticks_ms()
         tft.png(png_file_name, 0, 0)
