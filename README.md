@@ -217,7 +217,7 @@ This module was tested on [Waveshare ESP32-S3 Touch LCD 1.47](https://www.wavesh
      <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_0.png" /> | 0x00
      <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_y.png" /> | 0x80 ( MADCTL_MY )
      <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_x.png" /> | 0x40 ( MADCTL_MX )
-     <img src="https://raw.githubusercontent.com/russhughes/_mpy/master/docs/madctl_xy.png" /> | 0xC0 ( MADCTL_MX + MADCTL_MY )
+     <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_xy.png" /> | 0xC0 ( MADCTL_MX + MADCTL_MY )
      <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_v.png" /> | 0x20 ( MADCTL_MV )
      <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_vy.png" /> | 0xA0 ( MADCTL_MV + MADCTL_MY )
      <img src="https://raw.githubusercontent.com/PIBSAS/MicroPython_Waveshare_ESP32_S3_LCD_1-47/main/docs/madctl_vx.png" /> | 0x60 ( MADCTL_MV + MADCTL_MX )
