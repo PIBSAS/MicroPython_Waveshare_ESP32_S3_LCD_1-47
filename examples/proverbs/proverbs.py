@@ -3,8 +3,8 @@ proverbs.py - Displays what I hope are chinese proverbs in simplified chinese to
     font support.
 """
 
-import utime
-import st7789
+import time
+import jd9853
 import tft_config
 import proverbs_font as font
 
@@ -17,14 +17,14 @@ def color_wheel(WheelPos):
     WheelPos = (255 - WheelPos) % 255
 
     if WheelPos < 85:
-        return st7789.color565(255 - WheelPos * 3, 0, WheelPos * 3)
+        return jd9853.color565(255 - WheelPos * 3, 0, WheelPos * 3)
 
     if WheelPos < 170:
         WheelPos -= 85
-        return st7789.color565(0, WheelPos * 3, 255 - WheelPos * 3)
+        return jd9853.color565(0, WheelPos * 3, 255 - WheelPos * 3)
 
     WheelPos -= 170
-    return st7789.color565(WheelPos * 3, 255 - WheelPos * 3, 0)
+    return jd9853.color565(WheelPos * 3, 255 - WheelPos * 3, 0)
 
 def main():
 
@@ -47,14 +47,14 @@ def main():
     half_width = tft.width() // 2
     wheel = 0
 
-    tft.fill(st7789.BLACK)
+    tft.fill(jd9853.BLACK)
 
     while True:
         for proverb in proverbs:
             proverb_lines = proverb.split('，')
             half_lines_height = len(proverb_lines) * line_height // 2
 
-            tft.fill(st7789.BLACK)
+            tft.fill(jd9853.BLACK)
 
             for count, proverb_line in enumerate(proverb_lines):
                 half_length = tft.write_len(font, proverb_line) // 2
@@ -69,7 +69,7 @@ def main():
             wheel = (wheel + 5) % 256
 
             # pause to slow down scrolling
-            utime.sleep(5)
+            time.sleep(5)
 
 
 main()
