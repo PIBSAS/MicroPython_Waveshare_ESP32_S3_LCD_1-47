@@ -400,11 +400,11 @@ static mp_obj_t jd9853_JD9853_fill_rect(size_t n_args, const mp_obj_t *args) {
 
     if (x >= self->width || y >= self->height) {
         if (right > self->width) {
-            right = self->width - 1;
+            right = self->width;
         }
 
         if (bottom > self->height) {
-            bottom = self->height - 1;
+            bottom = self->height;
         }
 
         set_window(self, x, y, right, bottom);
@@ -1247,6 +1247,11 @@ static mp_obj_t jd9853_JD9853_init(mp_obj_t self_in) {
         write_cmd(self, JD9853_COLMOD, color_mode, 1);
         mp_hal_delay_ms(10);
 
+       // CONFIGURAR MADCTL para orden RGB
+        const uint8_t madctl[] = {JD9853_MADCTL_RGB};  // 0x00
+        write_cmd(self, JD9853_MADCTL, madctl, 1);
+        mp_hal_delay_ms(10);
+      
         if (self->inversion) {
             write_cmd(self, JD9853_INVON, NULL, 0);
         } else {
