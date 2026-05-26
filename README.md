@@ -537,3 +537,330 @@ sets the line in the frame buffer that will be the first line after the `tfa`.
 
   Convert a `bitarray` to the rgb565 color `buffer` suitable for blitting. Bit
   1 in `bitarray` is a pixel with `color` and 0 - with `bg_color`.
+
+-----
+
+# JD9853 Driver - Documentation of Additional Functions
+
+## Gradient Direction Constants
+
+| Constant                   | Value	| Description                      |
+|----------------------------|--------|----------------------------------|
+| jd9853.GRADIENT_HORIZONTAL |   	0 	| Horizontal gradient (left to right) |
+| jd9853.GRADIENT_VERTICAL	 |    1  	| Vertical gradient (up to down) |
+
+## Function
+
+## Scroll:
+
+- `scroll(dy)`
+
+Scroll the content of the screen vertically.
+
+### Syntax:
+
+- `tft.scroll(dy)`
+
+### Parameters:
+
+- `dy` (int): Number of pixels to move vertically. Positive values move down, negative values move up.
+
+#### Example:
+
+````python
+tft.scroll(10)   # Move 10 pixels down
+tft.scroll(-5)   # Move 5 píxels up
+````
+
+## Contrast:
+
+- `contrast(level)`
+
+Adjust the screen contrast level.
+
+### Syntax:
+
+- `tft.contrast(level)`
+
+### Parameters:
+
+- `level`(int): Contrast level from 0 to 255. (0 = minimum, 255 = maximum)
+
+#### Example:
+
+````python
+tft.contrast(200)  # Increase the contrast
+tft.contrast(100)  # Decrease the contrast
+````
+
+## Gradient fill:
+
+- `gradient_fill(x, y, w, h, color1, color2, direction)`
+
+Fill a rectangular area with a gradient between two colors.
+
+### Syntax:
+
+- `tft.gradient_fill(x, y, w, h, color1, color2, direction)`
+
+### Parameters:
+
+- `x` (int): X coordinate of the upper left corner
+- `y` (int): Y coordinate of the upper left corner
+- `w` (int): Width of the rectangle in pixels
+- `h` (int): Heigth of the rectangle in pixels
+- `color1` (int): Start Color (ex: jd9853.RED)
+- `color2` (int): EndColor (ex: jd9853.BLUE)
+- `direction` (int): Gradient direction (jd9853.GRADIENT_HORIZONTAL o jd9853.GRADIENT_VERTICAL)
+
+#### Example:
+
+````python
+# Horizontal gradient from red to blue
+tft.gradient_fill(0, 0, 100, 100, jd9853.RED, jd9853.BLUE, jd9853.GRADIENT_HORIZONTAL)
+
+# Vertical gradient from green to yellow
+tft.gradient_fill(50, 50, 80, 80, jd9853.GREEN, jd9853.YELLOW, jd9853.GRADIENT_VERTICAL)
+````
+
+## Round rect:
+
+- `round_rect(x, y, w, h, r, color)`
+
+Draw a rectangle with rounded corners.
+
+### Syntax:
+
+````python
+tft.round_rect(x, y, w, h, r, color)
+````
+
+### Parameters:
+
+- `x` (int): X coordinate of the upper left corner
+- `y` (int): Y coordinate of the upper left corner
+- `w` (int): Width of the rectangle in pixels
+- `h` (int): Heigth of the rectangle in pixels
+- `r` (int): Corner radius in pixels
+- `color` (int): Border color
+
+#### Example:
+
+````python
+# Rounded rectangle of 100x50 with a radius of 10
+tft.round_rect(10, 10, 100, 50, 10, jd9853.YELLOW)
+````
+
+## Draw icon:
+
+- `draw_icon(icon_data, x, y, size, color)`
+ 
+Draw a monochrome icon from bitmap data.
+
+### Syntax:
+
+````python
+tft.draw_icon(icon_data, x, y, size, color)
+````
+
+### Parameters:
+
+- `icon_data` (bytes/bytearray): Icon data in monochrome bitmap format
+- `x` (int): X coordinate of the upper left corner
+- `y` (int): Y coordinate of the upper left corner
+- `size` (int): Icon size in pixels (width and height, must be square)
+- `color` (int): Color to draw the active pixels
+
+#### Example:
+
+````python
+# Icon 16x16 (32 bytes: 16 filas * 2 bytes per row)
+icon = bytes([
+    0x00, 0x00,  # Row 0
+    0x00, 0x00,  # Row 1
+    0x00, 0x00,  # Row 2
+    0x0C, 0x00,  # Row 3
+    0x1E, 0x00,  # Row 4
+    0x3F, 0x00,  # Row 5
+    0x7F, 0x80,  # Row 6
+    0xFF, 0xC0,  # Row 7
+    0xFF, 0xC0,  # Row 8
+    0x7F, 0x80,  # Row 9
+    0x3F, 0x00,  # Row 10
+    0x1E, 0x00,  # Row 11
+    0x0C, 0x00,  # Row 12
+    0x00, 0x00,  # Row 13
+    0x00, 0x00,  # Row 14
+    0x00, 0x00,  # Row 15
+])
+tft.draw_icon(icon, 50, 50, 16, jd9853.RED)
+````
+
+## Get info:
+
+- `get_info()`
+  
+Obtains current information from the display.
+
+### Syntax:
+
+````python
+info = tft.get_info()
+````
+
+#### Return:
+
+- Dictionary with the following keys:
+
+  - `width` (int): Current logical width
+  - `height` (int): Current logical heigth
+  - `rotation` (int): Current rotation (0-3)
+  - `buffer_size` (int): Configured buffer size
+  - `options` (int): Driver's options
+  - `madctl` (int): Value of the MADCTL register
+  - `inversion` (bool): Color inversion state
+
+#### Example:
+
+````python
+info = tft.get_info()
+print(f"Display: {info['width']}x{info['height']}")
+print(f"Rotation: {info['rotation']}")
+print(f"Inversion mode: {info['inversion']}")
+````
+
+## Triangle:
+
+- `triangle(x0, y0, x1, y1, x2, y2, color)`
+  
+Draw a triangle with outline lines.
+
+### Syntax:
+
+````python
+tft.triangle(x0, y0, x1, y1, x2, y2, color)
+````
+
+### Parameters:
+
+- `x0`, `y0` (int): Coordinates of the first vertex
+- `x1`, `y1` (int): Coordinates of the second vertex
+- `x2`, `y2` (int): Coordinates of the third vertex
+- `color` (int): Border color
+
+#### Example:
+
+````python
+# Triangle with vertices at (50,50), (100,100), (0,100)
+tft.triangle(50, 50, 100, 100, 0, 100, jd9853.GREEN)
+````
+
+## Fill triangle:
+
+- `fill_triangle(x0, y0, x1, y1, x2, y2, color)`
+  
+Draw a filled triangle.
+
+### Syntax:
+
+````python
+tft.fill_triangle(x0, y0, x1, y1, x2, y2, color)
+````
+
+### Parameters:
+
+- `x0`, `y0` (int): Coordinates of the first vertex
+- `x1`, `y1` (int): Coordinates of the second vertex
+- `x2`, `y2` (int): Coordinates of the third vertex
+- `color` (int): Fill color
+
+### Example:
+
+````python
+# Fill triangle
+tft.fill_triangle(50, 50, 100, 100, 0, 100, jd9853.BLUE)
+````
+
+## Ellipse:
+
+- `ellipse(x, y, rx, ry, color)`
+  
+Draw an ellipse or circle.
+
+### Syntax:
+
+````python
+tft.ellipse(x, y, rx, ry, color)
+````
+
+### Parameters:
+
+- `x` (int): X coordinate of the center
+- `y` (int): Y coordinate of the center
+- `rx` (int): Horizontal radius in pixels
+- `ry` (int): Vertical radius in pixels
+- `color` (int): Border color
+
+#### Example:
+
+````python
+# Circle with radius 30
+tft.ellipse(120, 160, 30, 30, jd9853.CYAN)
+
+# Elipse 60x30
+tft.ellipse(120, 160, 60, 30, jd9853.MAGENTA)
+````
+
+## Fill ellipse:
+
+- `fill_ellipse(x, y, rx, ry, color)`
+  
+Draw a filled ellipse or circle.
+
+### Syntax:
+
+````python
+tft.fill_ellipse(x, y, rx, ry, color)
+````
+
+### Parameters:
+
+- `x` (int): X coordinate of the center
+- `y` (int): Y coordinate of the center
+- `rx` (int): Horizontal radius in pixels
+- `ry` (int): Vertical radius in pixels
+- `color` (int): Fill color
+
+#### Example:
+
+````python
+# Filled circle with radius 30
+tft.fill_ellipse(120, 160, 30, 30, jd9853.RED)
+
+# Filled elipse
+tft.fill_ellipse(120, 160, 60, 30, jd9853.GREEN)
+````
+
+## Fade out:
+
+- `fade_out(steps, delay_ms)`
+  
+Screen fade effect.
+
+### Syntax:
+
+````python
+tft.fade_out(steps, delay_ms)
+````
+
+### Parameters:
+
+- `steps` (int): Number of fade steps (1-255)
+- `delay_ms` (int): Delay between steps in milliseconds
+
+#### Example:
+
+````python
+# Fading in 30 steps, 50ms between each step
+tft.fade_out(30, 50)
+````
