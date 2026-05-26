@@ -2827,7 +2827,7 @@ static mp_obj_t jd9853_JD9853_fade_out(size_t n_args, const mp_obj_t *args) {
         uint16_t level = 255 - (255 * i / steps);
         // Try to set backlight PWM if available
         // Fallback: draw semi-transparent overlay
-        if (self->backlight != GPIO_NUM_NC && self->pwm_pin != GPIO_NUM_NC) {
+        if (self->backlight != GPIO_NUM_NC) {
             // Would need PWM support
         } else {
             // Software fade - draw darker overlay
