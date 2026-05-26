@@ -72,6 +72,10 @@ extern "C" {
 #define OPTIONS_WRAP_H 0x02
 #define OPTIONS_WRAP   0x03
 
+// Gradient direction constants
+#define GRADIENT_HORIZONTAL 0
+#define GRADIENT_VERTICAL   1
+
 typedef struct _Point {
     mp_float_t x;
     mp_float_t y;
@@ -96,7 +100,8 @@ typedef struct _jd9853_JD9853_obj_t {
     mp_obj_base_t *spi_obj;
     mp_file_t *fp;              // file object
     uint16_t *i2c_buffer;       // resident buffer if buffer_size given
-    uint16_t vscsad;
+    uint16_t vscsad;            // vertical scroll start address (for scroll)
+    uint16_t hscsad;            // horizontal scroll position (for horizontal scroll)
     // m_malloc'd pointers
     void *work;                 // work buffer for jpg & png decoding
     uint8_t *scanline_ringbuf;  // png scanline_ringbuf
@@ -136,6 +141,10 @@ mp_obj_t jd9853_JD9853_make_new(const mp_obj_type_t *type, size_t n_args, size_t
 
 extern void draw_pixel(jd9853_JD9853_obj_t *self, int16_t x, int16_t y, uint16_t color);
 extern void fast_hline(jd9853_JD9853_obj_t *self, int16_t x, int16_t y, int16_t w, uint16_t color);
+extern void line(jd9853_JD9853_obj_t *self, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t color);
+
+// New function declarations (for use by other functions)
+extern uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
 
 #ifdef  __cplusplus
 }
