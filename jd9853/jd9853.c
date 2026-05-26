@@ -2455,6 +2455,7 @@ static mp_obj_t jd9853_JD9853_invert_area(size_t n_args, const mp_obj_t *args) {
     // Allocate buffer for one row
     int16_t width = x1 - x0 + 1;
     int16_t height = y1 - y0 + 1;
+    (void)height;
     size_t buf_size = width * 2;  // One row of RGB565
     
     uint8_t *row_buffer = m_malloc(buf_size);
@@ -2684,14 +2685,14 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_triangle_obj, 8, 8, jd9
 // fill_triangle(x0, y0, x1, y1, x2, y2, color) - Fill triangle
 //
 static mp_obj_t jd9853_JD9853_fill_triangle(size_t n_args, const mp_obj_t *args) {
-    jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    //jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_int_t x0 = mp_obj_get_int(args[1]);
     mp_int_t y0 = mp_obj_get_int(args[2]);
     mp_int_t x1 = mp_obj_get_int(args[3]);
     mp_int_t y1 = mp_obj_get_int(args[4]);
     mp_int_t x2 = mp_obj_get_int(args[5]);
     mp_int_t y2 = mp_obj_get_int(args[6]);
-    mp_int_t color = mp_obj_get_int(args[7]);
+    //mp_int_t color = mp_obj_get_int(args[7]);
     
     // Simple triangle fill using polygon method
     mp_obj_t points[3];
