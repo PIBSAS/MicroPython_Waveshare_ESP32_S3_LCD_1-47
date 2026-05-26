@@ -9,7 +9,7 @@ import gc
 import random
 import time
 import tft_config
-import st7789   
+import jd9853   
 
 gc.enable()
 gc.collect()
@@ -27,7 +27,7 @@ def main():
 
     # enable display and clear screen
     tft.init()
-    tft.fill(st7789.BLACK)
+    tft.fill(jd9853.BLACK)
 
     width = tft.width()
     height = tft.height()
