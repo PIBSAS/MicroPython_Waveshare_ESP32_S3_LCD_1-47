@@ -2844,7 +2844,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fade_out_obj, 3, 3, jd9
 
 //
 // scroll_horizontal(dx) - Horizontal scroll (using software)
-//
+/*
 static mp_obj_t jd9853_JD9853_scroll_horizontal(size_t n_args, const mp_obj_t *args) {
     jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_int_t dx = mp_obj_get_int(args[1]);
@@ -2892,7 +2892,7 @@ static mp_obj_t jd9853_JD9853_scroll_horizontal(size_t n_args, const mp_obj_t *a
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_scroll_horizontal_obj, 2, 2, jd9853_JD9853_scroll_horizontal);
-
+*/
 // Need to add vscsad field to jd9853_JD9853_obj_t struct and pwm_pin
 // Add these to the struct in jd9853.h:
 // uint16_t vscsad;
@@ -2933,7 +2933,7 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_vscrdef), MP_ROM_PTR(&jd9853_JD9853_vscrdef_obj)},
     {MP_ROM_QSTR(MP_QSTR_vscsad), MP_ROM_PTR(&jd9853_JD9853_vscsad_obj)},
     {MP_ROM_QSTR(MP_QSTR_scroll), MP_ROM_PTR(&jd9853_JD9853_scroll_obj)},
-    {MP_ROM_QSTR(MP_QSTR_scroll_horizontal), MP_ROM_PTR(&jd9853_JD9853_scroll_horizontal_obj)},
+   // {MP_ROM_QSTR(MP_QSTR_scroll_horizontal), MP_ROM_PTR(&jd9853_JD9853_scroll_horizontal_obj)},
     {MP_ROM_QSTR(MP_QSTR_madctl), MP_ROM_PTR(&jd9853_JD9853_madctl_obj)},
     {MP_ROM_QSTR(MP_QSTR_offset), MP_ROM_PTR(&jd9853_JD9853_offset_obj)},
     {MP_ROM_QSTR(MP_QSTR_jpg), MP_ROM_PTR(&jd9853_JD9853_jpg_obj)},
