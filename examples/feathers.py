@@ -5,8 +5,8 @@ feathers.py
 
 import random
 import math
-import utime
-import st7789
+import time
+import jd7789
 import tft_config
 
 def between(left, right, along):
@@ -20,14 +20,14 @@ def color_wheel(position):
     position = (255 - position) % 255
 
     if position < 85:
-        return st7789.color565(255 - position * 3, 0, position * 3)
+        return jd7789.color565(255 - position * 3, 0, position * 3)
 
     if position < 170:
         position -= 85
-        return st7789.color565(0, position * 3, 255 - position * 3)
+        return jd7789.color565(0, position * 3, 255 - position * 3)
 
     position -= 170
-    return st7789.color565(position * 3, 255 - position * 3, 0)
+    return jd7789.color565(position * 3, 255 - position * 3, 0)
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
 
     tft.vscrdef(tfa, width, bfa)    # set scroll area
     tft.vscsad(scroll + tfa)        # set scroll position
-    tft.fill(st7789.BLACK)          # clear screen
+    tft.fill(jd7789.BLACK)          # clear screen
 
     half = (height >> 1) - 1    # half the height of the display
     interval = 0                # steps between new points
@@ -75,7 +75,7 @@ def main():
             increment = 1 / interval
 
         # clear the first column of the display and scroll it
-        tft.vline(scroll, 0, height, st7789.BLACK)
+        tft.vline(scroll, 0, height, jd7789.BLACK)
         tft.vscsad(scroll + tfa)
 
         # get the next point between last_y and current_y
@@ -92,7 +92,7 @@ def main():
         counter += 1
 
         # pause to slow down scrolling
-        utime.sleep(0.005)
+        time.sleep(0.005)
 
 
 main()
