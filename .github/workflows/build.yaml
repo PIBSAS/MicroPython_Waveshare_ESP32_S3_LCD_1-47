@@ -26,13 +26,24 @@ jobs:
     - name: Instalar dependencias
       run: |
        sudo apt-get update
-       sudo apt-get install -y build-essential git wget flex bison gperf pkg-config python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+       sudo apt-get install -y build-essential git wget flex bison gperf pkg-config python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0 yq
+
+    - id: idf_ver
+      name: Extract IDF version from MicroPython workflow
+      run: |
+        cd micropython
+        IDF_VER=$(yq '.env.IDF_NEWEST_VER' .github/workflows/ports_esp32.yml | tr -d '"')
+        echo "IDF_VER=$IDF_VER" >> $GITHUB_OUTPUT
+
+    - name: Show detected versions
+      run: |
+        echo "ESP-IDF version: ${{ steps.idf_ver.outputs.IDF_VER }}"
 
     - name: Clonar ESP-IDF
       run: |
         mkdir -p esp
         cd esp
-        git clone -b v5.4.2 --recursive https://github.com/espressif/esp-idf.git
+        git clone --depth 1 --branch ${{ steps.idf_ver.outputs.IDF_VER }} --recursive https://github.com/espressif/esp-idf.git
         cd esp-idf/tools
         python3 idf_tools.py install cmake
         cd ..
@@ -56,13 +67,13 @@ jobs:
            -D USER_C_MODULES="$GITHUB_WORKSPACE/jd9853/micropython.cmake" \
            -B build-ESP32_GENERIC_S3 build
 
-    - name: Move binaries ST7789
+    - name: Move binaries JD853
      # if: success() || failure()
       run: |
         mkdir -p ./artifacts
-        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build/micropython.bin ./artifacts/
-        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build/bootloader/bootloader.bin ./artifacts/
-        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build/partition_table/partition-table.bin ./artifacts/
+        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build-ESP32_GENERIC_S3/micropython.bin ./artifacts/
+        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build-ESP32_GENERIC_S3/bootloader/bootloader.bin ./artifacts/
+        cp ${GITHUB_WORKSPACE}/micropython/ports/esp32/build-ESP32_GENERIC_S3/partition_table/partition-table.bin ./artifacts/
     
     - name: Get MicroPython Version from mpconfig.h
       run: |
