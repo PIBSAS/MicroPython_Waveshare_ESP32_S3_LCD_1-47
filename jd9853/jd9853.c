@@ -395,26 +395,38 @@ static mp_obj_t jd9853_JD9853_fill_rect(size_t n_args, const mp_obj_t *args) {
     mp_int_t h = mp_obj_get_int(args[4]);
     mp_int_t color = mp_obj_get_int(args[5]);
 
-    uint16_t right = x + w - 1;
-    uint16_t bottom = y + h - 1;
+    // Clipping: si está completamente fuera, no dibujar
+    if (x >= self->width || y >= self->height || x + w <= 0 || y + h <= 0) {
+        return mp_const_none;
+    }
 
-    if (x >= self->width || y >= self->height) {
-        if (right > self->width) {
-            right = self->width;
-        }
+    // Ajustar coordenadas
+    int16_t x0 = x;
+    int16_t y0 = y;
+    int16_t x1 = x + w - 1;
+    int16_t y1 = y + h - 1;
 
-        if (bottom > self->height) {
-            bottom = self->height;
-        }
+    // Clip a los bordes de la pantalla
+    if (x0 < 0) x0 = 0;
+    if (y0 < 0) y0 = 0;
+    if (x1 >= self->width) x1 = self->width - 1;
+    if (y1 >= self->height) y1 = self->height - 1;
 
-        set_window(self, x, y, right, bottom);
+    // Calcular nuevo ancho y alto
+    int16_t new_w = x1 - x0 + 1;
+    int16_t new_h = y1 - y0 + 1;
+
+    if (new_w > 0 && new_h > 0) {
+        set_window(self, x0, y0, x1, y1);
         DC_HIGH();
         CS_LOW();
-        fill_color_buffer(self->spi_obj, color, w * h);
+        fill_color_buffer(self->spi_obj, color, new_w * new_h);
         CS_HIGH();
     }
+
     return mp_const_none;
 }
+
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_fill_rect_obj, 6, 6, jd9853_JD9853_fill_rect);
 
 static mp_obj_t jd9853_JD9853_fill(mp_obj_t self_in, mp_obj_t _color) {
