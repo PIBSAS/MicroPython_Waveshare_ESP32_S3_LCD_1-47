@@ -12,20 +12,20 @@ paint.py
 
 from machine import Pin, SPI, SoftI2C
 import axp202c
-import st7789
+import jd9853
 import focaltouch
 import vga1_8x8 as font
 
 # color swatches
 COLORS = [
-    st7789.BLACK,
-    st7789.BLUE,
-    st7789.RED,
-    st7789.GREEN,
-    st7789.CYAN,
-    st7789.MAGENTA,
-    st7789.YELLOW,
-    st7789.WHITE]
+    jd9853.BLACK,
+    jd9853.BLUE,
+    jd9853.RED,
+    jd9853.GREEN,
+    jd9853.CYAN,
+    jd9853.MAGENTA,
+    jd9853.YELLOW,
+    jd9853.WHITE]
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
             mosi=Pin(19, Pin.OUT))
 
         # configure display
-        tft = st7789.ST7789(
+        tft = jd9853.JD9853(
             spi,
             240,
             240,
@@ -60,8 +60,8 @@ def main():
 
         # enable display and clear screen
         tft.init()
-        tft.fill(st7789.BLACK)
-        tft.text(font, "Draw", 104, 1, st7789.WHITE)
+        tft.fill(jd9853.BLACK)
+        tft.text(font, "Draw", 104, 1, jd9853.WHITE)
 
         # enable focaltouch touchscreen
         touch_i2c = SoftI2C(scl=Pin(32), sda=Pin(23))
@@ -112,9 +112,9 @@ def remove_highlight(tft, color_index, color):
 
 def add_highlight(tft, color_index):
     # draw highlight around newly selected color swatch
-    tft.rect(color_index*30, 210, 30, 30, st7789.WHITE)
-    tft.rect(color_index*30+1, 211, 28, 28, st7789.BLACK)
-    tft.rect(color_index*30+2, 212, 26, 26, st7789.BLACK)
+    tft.rect(color_index*30, 210, 30, 30, jd9853.WHITE)
+    tft.rect(color_index*30+1, 211, 28, 28, jd9853.BLACK)
+    tft.rect(color_index*30+2, 212, 26, 26, jd9853.BLACK)
 
 
 main()
