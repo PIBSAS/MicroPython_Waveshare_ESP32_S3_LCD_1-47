@@ -14,7 +14,7 @@ toasters_jpg.py
 import time
 import random
 from machine import Pin, SPI
-import st7789
+import jd9853
 
 #
 # Select a config module for your display
@@ -61,7 +61,7 @@ def main():
 
     # enable display and clear screen
     tft.init()
-    tft.fill(st7789.BLACK)
+    tft.fill(jd9853.BLACK)
 
     width = 64
     height = 64
@@ -91,7 +91,7 @@ def main():
                 man.y,
                 man.speed,
                 height,
-                st7789.BLACK)
+                jd9853.BLACK)
 
             man.move()
 
@@ -103,7 +103,7 @@ def main():
                     man.y,
                     width,
                     height,
-                    st7789.BLACK)
+                    jd9853.BLACK)
 
         time.sleep(0.05)
 
