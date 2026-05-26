@@ -455,7 +455,7 @@ static mp_obj_t jd9853_JD9853_pixel(size_t n_args, const mp_obj_t *args) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_pixel_obj, 4, 4, jd9853_JD9853_pixel);
 
-static void line(jd9853_JD9853_obj_t *self, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t color) {
+void line(jd9853_JD9853_obj_t *self, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t color) {
     bool steep = ABS(y1 - y0) > ABS(x1 - x0);
     if (steep) {
         _swap_int16_t(x0, y0);
@@ -1477,7 +1477,7 @@ static mp_obj_t jd9853_JD9853_offset(size_t n_args, const mp_obj_t *args) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_offset_obj, 3, 3, jd9853_JD9853_offset);
 
-static uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
     return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3);
 }
 
