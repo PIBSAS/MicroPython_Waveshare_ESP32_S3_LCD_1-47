@@ -2384,7 +2384,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_bounding_obj, 1, 3, jd9
 //
 // read_pixel(x, y) - Read color of a pixel
 //
-static mp_obj_t jd9853_JD9853_read_pixel(size_t n_args, const mp_obj_t *args) {
+/*static mp_obj_t jd9853_JD9853_read_pixel(size_t n_args, const mp_obj_t *args) {
     jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_int_t x = mp_obj_get_int(args[1]);
     mp_int_t y = mp_obj_get_int(args[2]);
@@ -2413,7 +2413,7 @@ static mp_obj_t jd9853_JD9853_read_pixel(size_t n_args, const mp_obj_t *args) {
     return mp_obj_new_int(color);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_read_pixel_obj, 3, 3, jd9853_JD9853_read_pixel);
-
+*/
 //
 // scroll(dy) - Smooth vertical scrolling
 //
@@ -2437,7 +2437,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_scroll_obj, 2, 2, jd985
 //
 // invert_area(x, y, w, h) - Invert colors in an area
 //
-static mp_obj_t jd9853_JD9853_invert_area(size_t n_args, const mp_obj_t *args) {
+/*static mp_obj_t jd9853_JD9853_invert_area(size_t n_args, const mp_obj_t *args) {
     jd9853_JD9853_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_int_t x = mp_obj_get_int(args[1]);
     mp_int_t y = mp_obj_get_int(args[2]);
@@ -2495,7 +2495,7 @@ static mp_obj_t jd9853_JD9853_invert_area(size_t n_args, const mp_obj_t *args) {
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_invert_area_obj, 5, 5, jd9853_JD9853_invert_area);
-
+*/
 //
 // contrast(level) - Adjust contrast (0-255)
 //
@@ -2911,7 +2911,7 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&jd9853_JD9853_on_obj)},
     {MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&jd9853_JD9853_off_obj)},
     {MP_ROM_QSTR(MP_QSTR_pixel), MP_ROM_PTR(&jd9853_JD9853_pixel_obj)},
-    {MP_ROM_QSTR(MP_QSTR_read_pixel), MP_ROM_PTR(&jd9853_JD9853_read_pixel_obj)},
+   // {MP_ROM_QSTR(MP_QSTR_read_pixel), MP_ROM_PTR(&jd9853_JD9853_read_pixel_obj)},
     {MP_ROM_QSTR(MP_QSTR_line), MP_ROM_PTR(&jd9853_JD9853_line_obj)},
     {MP_ROM_QSTR(MP_QSTR_blit_buffer), MP_ROM_PTR(&jd9853_JD9853_blit_buffer_obj)},
     {MP_ROM_QSTR(MP_QSTR_draw), MP_ROM_PTR(&jd9853_JD9853_draw_obj)},
@@ -2943,7 +2943,7 @@ static const mp_rom_map_elem_t jd9853_JD9853_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_polygon), MP_ROM_PTR(&jd9853_JD9853_polygon_obj)},
     {MP_ROM_QSTR(MP_QSTR_fill_polygon), MP_ROM_PTR(&jd9853_JD9853_fill_polygon_obj)},
     {MP_ROM_QSTR(MP_QSTR_bounding), MP_ROM_PTR(&jd9853_JD9853_bounding_obj)},
-    {MP_ROM_QSTR(MP_QSTR_invert_area), MP_ROM_PTR(&jd9853_JD9853_invert_area_obj)},
+   // {MP_ROM_QSTR(MP_QSTR_invert_area), MP_ROM_PTR(&jd9853_JD9853_invert_area_obj)},
     {MP_ROM_QSTR(MP_QSTR_contrast), MP_ROM_PTR(&jd9853_JD9853_contrast_obj)},
     {MP_ROM_QSTR(MP_QSTR_gradient_fill), MP_ROM_PTR(&jd9853_JD9853_gradient_fill_obj)},
     {MP_ROM_QSTR(MP_QSTR_draw_icon), MP_ROM_PTR(&jd9853_JD9853_draw_icon_obj)},
