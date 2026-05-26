@@ -63,7 +63,7 @@ extern "C" {
 #define WHITE   0xFFFF
 #define ORANGE  0xFD20
 #define PURPLE  0x780F
-#define PINK    0xF81F
+#define PINK    0xFC97
 #define GRAY    0x8410
 #define DARKGRAY 0x4208
 #define BROWN   0xA145
