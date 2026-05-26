@@ -12,7 +12,7 @@ alien.py
 import gc
 import random
 import tft_config
-import st7789
+import jd9853
 
 gc.enable()
 gc.collect()
