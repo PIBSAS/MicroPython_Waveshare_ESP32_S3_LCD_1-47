@@ -3029,7 +3029,8 @@ mp_obj_t jd9853_JD9853_make_new(const mp_obj_type_t *type,
     self->display_height = args[ARG_height].u_int;
     self->height = args[ARG_height].u_int;
     self->vscsad = 0;  // Initialize scroll position
-
+    self->hscsad = 0;
+  
     self->rotations = NULL;
     self->rotations_len = 4;
 
