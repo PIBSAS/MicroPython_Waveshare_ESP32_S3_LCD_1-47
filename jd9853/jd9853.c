@@ -2463,7 +2463,7 @@ mp_obj_t jd9853_JD9853_make_new(const mp_obj_type_t *type,
         {MP_QSTR_rotation, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0}},
         {MP_QSTR_custom_init, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
         {MP_QSTR_color_order, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = JD9853_MADCTL_RGB}},
-        {MP_QSTR_inversion, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true}},
+        {MP_QSTR_inversion, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false}},
         {MP_QSTR_options, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0}},
         {MP_QSTR_buffer_size, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0}},
     };
@@ -2567,6 +2567,12 @@ static const mp_map_elem_t jd9853_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_MAGENTA), MP_ROM_INT(MAGENTA)},
     {MP_ROM_QSTR(MP_QSTR_YELLOW), MP_ROM_INT(YELLOW)},
     {MP_ROM_QSTR(MP_QSTR_WHITE), MP_ROM_INT(WHITE)},
+    {MP_ROM_QSTR(MP_QSTR_ORANGE), MP_ROM_INT(ORANGE)},      // 0xFD20
+    {MP_ROM_QSTR(MP_QSTR_PURPLE), MP_ROM_INT(PURPLE)},      // 0x780F
+    {MP_ROM_QSTR(MP_QSTR_PINK), MP_ROM_INT(PINK)},          // 0xF81F
+    {MP_ROM_QSTR(MP_QSTR_GRAY), MP_ROM_INT(GRAY)},          // 0x8410
+    {MP_ROM_QSTR(MP_QSTR_DARKGRAY), MP_ROM_INT(DARKGRAY)},  // 0x4208
+    {MP_ROM_QSTR(MP_QSTR_BROWN), MP_ROM_INT(BROWN)},
     {MP_ROM_QSTR(MP_QSTR_FAST), MP_ROM_INT(JPG_MODE_FAST)},
     {MP_ROM_QSTR(MP_QSTR_SLOW), MP_ROM_INT(JPG_MODE_SLOW)},
     {MP_ROM_QSTR(MP_QSTR_MADCTL_MY), MP_ROM_INT(JD9853_MADCTL_MY)},
