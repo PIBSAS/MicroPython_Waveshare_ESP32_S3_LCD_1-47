@@ -4,7 +4,7 @@ chango.py proportional font test for font2bitmap converter.
 
 import time
 import gc
-import st7789
+import jd9853
 import tft_config
 
 tft = tft_config.config(1)
@@ -22,7 +22,7 @@ gc.collect()
 
 def display_font(font):
 
-    tft.fill(st7789.BLUE)                       # clear the screen
+    tft.fill(jd9853.BLUE)                       # clear the screen
     column = 0                                  # first column
     row = 0                                     # first row
 
@@ -35,7 +35,7 @@ def display_font(font):
 
             if row+font.HEIGHT > tft.height():  # if the row will not fit on the screen
                 time.sleep(1)                   # pause for a second
-                tft.fill(st7789.BLUE)           # clear the screen
+                tft.fill(jd9853.BLUE)           # clear the screen
                 row = 0                         # reset the row
 
         tft.write(                              # write to the screen
@@ -43,14 +43,14 @@ def display_font(font):
             char,                               # the character
             column,                             # at this column
             row,                                # on this row
-            st7789.WHITE,                       # in white
-            st7789.BLUE)                        # with blue background
+            jd9853.WHITE,                       # in white
+            jd9853.BLUE)                        # with blue background
 
         column += width                         # move the column past the character
 
 def main():
     tft.init()
-    tft.fill(st7789.BLUE)
+    tft.fill(jd9853.BLUE)
 
     for font in [font_16, font_32, font_64]:    # for each font
         display_font(font)                      # display the font characters
