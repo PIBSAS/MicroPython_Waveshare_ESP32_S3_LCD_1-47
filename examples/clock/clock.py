@@ -15,9 +15,9 @@ clock.py
 
 """
 import gc
-import utime
+import time
 from machine import Pin, SPI, RTC
-import st7789
+import jd9853
 import tft_config
 import pacifico40 as font
 
@@ -52,15 +52,15 @@ class Button:
     def __init__(self, pin, callback, trigger=Pin.IRQ_FALLING, debounce=350):
         self.callback = callback
         self.debounce = debounce
-        self._next_call = utime.ticks_ms() + self.debounce
+        self._next_call = time.ticks_ms() + self.debounce
         pin.irq(trigger=trigger, handler=self.debounce_handler)
 
     def call_callback(self, pin):
         self.callback(pin)
 
     def debounce_handler(self, pin):
-        if utime.ticks_ms() > self._next_call:
-            self._next_call = utime.ticks_ms() + self.debounce
+        if time.ticks_ms() > self._next_call:
+            self._next_call = time.ticks_ms() + self.debounce
             self.call_callback(pin)
 
 def hour_pressed(pin):
@@ -96,7 +96,7 @@ def main():
     background_change = True
     time_col = tft.width()//2 - font.MAX_WIDTH * 5 //2
     time_row = tft.height()//2 - font.HEIGHT //2
-    time_color = st7789.WHITE
+    time_color = jd9853.WHITE
     last_time = "-----"
 
     Button(pin=Pin(35, mode=Pin.IN, pull=Pin.PULL_UP), callback=hour_pressed)
@@ -115,7 +115,7 @@ def main():
 
             # draw the new background from the clock_{WIDTH}x{HEIGHT} directory
             image_file = "clock_{}x{}/{}".format(tft.width(), tft.height(), image)
-            tft.jpg(image_file, 0, 0, st7789.SLOW)
+            tft.jpg(image_file, 0, 0, jd9853.SLOW)
 
             # calculate the starting column for each time digit
             digit_columns = [time_col + digit *
@@ -140,7 +140,7 @@ def main():
             last_time = "-----"
 
         # get the current hour and minute
-        _, _, _, hour, minute, second, _, _ = utime.localtime()
+        _, _, _, hour, minute, second, _, _ = time.localtime()
 
         # 12 hour time
         if hour == 0:
@@ -172,7 +172,7 @@ def main():
                     digit_columns[digit],       # write to the correct column
                     time_row,                   # write on row
                     time_color,                 # color of time text
-                    st7789.BLACK,               # transparent background color
+                    jd9853.BLACK,               # transparent background color
                     digit_background[digit],    # use the background bitmap
                     digit != 2)                 # don't fill to the right of the ':'
 
@@ -183,7 +183,7 @@ def main():
         if background_lock:
             background_lock -= 1
 
-        utime.sleep(0.5)
+        time.sleep(0.5)
         gc.collect()
 
 main()
