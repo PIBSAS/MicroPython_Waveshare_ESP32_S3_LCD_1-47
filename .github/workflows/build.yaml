@@ -62,6 +62,8 @@ jobs:
         cp ${GITHUB_WORKSPACE}/fonts/bitmap/vga1_16x16.py modules
         cp ${GITHUB_WORKSPACE}/fonts/truetype/NotoSans_32.py modules
         cp ${GITHUB_WORKSPACE}/fonts/vector/scripts.py modules
+        cp ${GITHUB_WORKSPACE}/lib/axs5106.py modules
+        cp ${GITHUB_WORKSPACE}/lib/tft_config.py modules
         
         idf.py -D MICROPY_BOARD=ESP32_GENERIC_S3 \
            -D USER_C_MODULES="$GITHUB_WORKSPACE/jd9853/micropython.cmake" \
