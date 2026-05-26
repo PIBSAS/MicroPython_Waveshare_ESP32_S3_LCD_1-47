@@ -55,11 +55,11 @@ cfg_helper.py
 import sys
 from machine import Pin, SPI
 import vga1_8x8 as font
-import st7789
+import jd9853
 
 # Set your display configuration
 
-# TTGO T-Display st7789 135x250 display
+# TTGO T-Display jd9853 135x250 display
 # BAUDRATE = 30000000
 # COLUMNS = 135
 # ROWS = 240
@@ -82,7 +82,7 @@ DC_PIN = 12
 BACKLIGHT_PIN = 15
 
 # Waveshare Pico LCD 2 display
-# 320×240 ST7789VW
+# 320×240 JD9853VW
 # https://www.waveshare.com/wiki/Pico-LCD-2
 # BAUDRATE = 30000000
 # COLUMNS = 320
@@ -111,8 +111,8 @@ KEYS = 0
 FUNC = 1
 ARGS = 2
 
-COLORS = [['Red', st7789.RED],['Green', st7789.GREEN], ['Blue', st7789.BLUE]]
-ORDERS = [['st7789.RGB', st7789.RGB], ['st7789.BGR', st7789.BGR]]
+COLORS = [['Red', jd9853.RED],['Green', jd9853.GREEN], ['Blue', jd9853.BLUE]]
+ORDERS = [['jd9853.RGB', jd9853.RGB], ['jd9853.BGR', jd9853.BGR]]
 INVERSIONS = [['False', False], ['True', True]]
 
 def show_help():
@@ -155,7 +155,7 @@ class CfgHelper():
 
     def init_display(self):
         """initialize the display"""
-        tft = st7789.ST7789(
+        tft = jd9853.JD9853(
             self.spi,
             self.columns,
             self.rows,
@@ -179,7 +179,7 @@ class CfgHelper():
             text,
             col,
             line,
-            st7789.WHITE,
+            jd9853.WHITE,
             COLORS[self.color][VAL])
 
     def decode_madctl(self):
@@ -282,7 +282,7 @@ class CfgHelper():
         self.center(font.HEIGHT*12, f'{INVERSIONS[self.inversion][NAME]}')
 
         # draw white rectangle around the perimeter of the display
-        self.tft.rect(0, 0, self.columns, self.rows, st7789.WHITE)
+        self.tft.rect(0, 0, self.columns, self.rows, jd9853.WHITE)
         print('? for help: ', end='')
 
     def menu(self):
