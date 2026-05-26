@@ -96,7 +96,7 @@ typedef struct _jd9853_JD9853_obj_t {
     mp_obj_base_t *spi_obj;
     mp_file_t *fp;              // file object
     uint16_t *i2c_buffer;       // resident buffer if buffer_size given
-
+    uint16_t vscsad;
     // m_malloc'd pointers
     void *work;                 // work buffer for jpg & png decoding
     uint8_t *scanline_ringbuf;  // png scanline_ringbuf
