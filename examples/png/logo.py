@@ -20,7 +20,7 @@ LOGOS = (
     (240, 240),
     (240, 320),
     (480, 320),
-    (320, 170),
+    (320, 172),
     (320, 240),
     (64, 64),
     (80, 160),
@@ -41,6 +41,7 @@ def main():
         png_file_name = f'logo-{width}x{height}.png'
         start = ticks_ms()
         tft.png(png_file_name, 0, 0)
+        gc.collect()
         print(f'Displaying {png_file_name} took {ticks_ms() - start}ms')
         sleep(2)
 
