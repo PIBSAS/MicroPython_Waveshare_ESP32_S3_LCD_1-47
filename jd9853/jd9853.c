@@ -108,60 +108,11 @@
 
 // { madctl, width, height, colstart, rowstart }
 
-jd9853_rotation_t ORIENTATIONS_240x320[4] = {
-    {0x48, 240, 320, 0, 0},
-    {0x28, 320, 240, 0, 0},
-    {0x88, 240, 320, 0, 0},
-    {0xE8, 320, 240, 0, 0}
-};
-
-jd9853_rotation_t ORIENTATIONS_170x320[4] = {
-    {0x48, 170, 320, 35, 0},
-    {0x28, 320, 170, 0, 35},
-    {0x88, 170, 320, 35, 0},
-    {0xE8, 320, 170, 0, 35}
-};
-
 jd9853_rotation_t ORIENTATIONS_172x320[4] = {
     {0x48, 172, 320, 34, 0},
     {0x28, 320, 172, 0, 34},
     {0x88, 172, 320, 34, 0},
     {0xE8, 320, 172, 0, 34}
-};
-
-jd9853_rotation_t ORIENTATIONS_240x240[4] = {
-    {0x48, 240, 240, 0, 0},
-    {0x28, 240, 240, 0, 0},
-    {0x88, 240, 240, 0, 80},
-    {0xE8, 240, 240, 80, 0}
-};
-
-jd9853_rotation_t ORIENTATIONS_135x240[4] = {
-    {0x48, 135, 240, 52, 40},
-    {0x28, 240, 135, 40, 53},
-    {0x88, 135, 240, 53, 40},
-    {0xE8, 240, 135, 40, 52}
-};
-
-jd9853_rotation_t ORIENTATIONS_128x160[4] = {
-    {0x48, 128, 160, 0, 0},
-    {0x28, 160, 128, 0, 0},
-    {0x88, 128, 160, 0, 0},
-    {0xE8, 160, 128, 0, 0}
-};
-
-jd9853_rotation_t ORIENTATIONS_80x160[4] = {
-    {0x48, 80, 160, 26, 1},
-    {0x28, 160, 80, 1, 26},
-    {0x88, 80, 160, 26, 1},
-    {0xE8, 160, 80, 1, 26}
-};
-
-jd9853_rotation_t ORIENTATIONS_128x128[4] = {
-    {0x48, 128, 128, 2, 1},
-    {0x28, 128, 128, 1, 2},
-    {0x88, 128, 128, 2, 3},
-    {0xE8, 128, 128, 3, 2}
 };
 
 static void write_spi(mp_obj_base_t *spi_obj, const uint8_t *buf, int len) {
@@ -1126,20 +1077,8 @@ static void set_rotation(jd9853_JD9853_obj_t *self) {
     if (rotations == NULL) {
         if (self->display_width == 240 && self->display_height == 320) {
             rotations = ORIENTATIONS_240x320;
-        } else if (self->display_width == 170 && self->display_height == 320) {
-            rotations = ORIENTATIONS_170x320;
         } else if (self->display_width == 172 && self->display_height == 320) {
             rotations = ORIENTATIONS_172x320;
-        } else if (self->display_width == 240 && self->display_height == 240) {
-            rotations = ORIENTATIONS_240x240;
-        } else if (self->display_width == 135 && self->display_height == 240) {
-            rotations = ORIENTATIONS_135x240;
-        } else if (self->display_width == 128 && self->display_height == 160) {
-            rotations = ORIENTATIONS_128x160;
-        } else if (self->display_width == 80 && self->display_height == 160) {
-            rotations = ORIENTATIONS_80x160;
-        } else if (self->display_width == 128 && self->display_height == 128) {
-            rotations = ORIENTATIONS_128x128;
         }
     }
 
