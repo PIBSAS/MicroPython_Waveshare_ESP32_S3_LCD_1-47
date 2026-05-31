@@ -19,7 +19,7 @@ import time
 from machine import Pin, SPI, RTC
 import jd9853
 import tft_config
-import pacifico40 as font
+import pacifico100 as font
 
 
 tft = tft_config.config(1)
