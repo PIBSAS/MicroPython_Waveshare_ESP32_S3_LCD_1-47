@@ -96,7 +96,7 @@ def main():
     background_change = True
     time_col = tft.width()//2 - font.MAX_WIDTH * 5 //2
     time_row = tft.height()//2 - font.HEIGHT //2
-    time_color = jd9853.WHITE
+    time_color = jd9853.YELLOW
     last_time = "-----"
 
     Button(pin=Pin(35, mode=Pin.IN, pull=Pin.PULL_UP), callback=hour_pressed)
