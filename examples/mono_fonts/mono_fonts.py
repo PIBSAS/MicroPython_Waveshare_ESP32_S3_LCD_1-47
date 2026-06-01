@@ -43,5 +43,4 @@ def main():
 
         fast = not fast
 
-
 main()
