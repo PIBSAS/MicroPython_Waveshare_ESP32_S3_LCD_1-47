@@ -1075,11 +1075,8 @@ static void set_rotation(jd9853_JD9853_obj_t *self) {
 
     jd9853_rotation_t *rotations = self->rotations;
     if (rotations == NULL) {
-        if (self->display_width == 240 && self->display_height == 320) {
-            rotations = ORIENTATIONS_240x320;
-        } else if (self->display_width == 172 && self->display_height == 320) {
+        if (self->display_width == 172 && self->display_height == 320) {
             rotations = ORIENTATIONS_172x320;
-        }
     }
 
     if (rotations) {
@@ -1194,7 +1191,7 @@ static mp_obj_t jd9853_JD9853_init(mp_obj_t self_in) {
        write_cmd(self, 0xDF, unlock, 2);
        mp_hal_delay_ms(10);
 
-        const uint8_t color_mode[] = {0x05};
+        const uint8_t color_mode[] = {0x06};
         write_cmd(self, JD9853_COLMOD, color_mode, 1);
         mp_hal_delay_ms(10);
 
