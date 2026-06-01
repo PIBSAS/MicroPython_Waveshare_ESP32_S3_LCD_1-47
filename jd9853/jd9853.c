@@ -186,7 +186,7 @@ static mp_obj_t jd9853_JD9853_set_window(size_t n_args, const mp_obj_t *args) {
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(jd9853_JD9853_set_window_obj, 5, 5, jd9853_JD9853_set_window);
 
 static void fill_color_buffer(mp_obj_base_t *spi_obj, uint16_t color, int length) {
-    const int buffer_pixel_size = 128;
+    const int buffer_pixel_size = 1024;
     int chunks = length / buffer_pixel_size;
     int rest = length % buffer_pixel_size;
     uint16_t color_swapped = _swap_bytes(color);
@@ -1192,7 +1192,7 @@ static mp_obj_t jd9853_JD9853_init(mp_obj_t self_in) {
        write_cmd(self, 0xDF, unlock, 2);
        mp_hal_delay_ms(10);
 
-        const uint8_t color_mode[] = {0x06};
+        const uint8_t color_mode[] = {0x05};
         write_cmd(self, JD9853_COLMOD, color_mode, 1);
         mp_hal_delay_ms(10);
 
