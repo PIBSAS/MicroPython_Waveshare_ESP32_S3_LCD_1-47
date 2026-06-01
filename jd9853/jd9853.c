@@ -1077,6 +1077,7 @@ static void set_rotation(jd9853_JD9853_obj_t *self) {
     if (rotations == NULL) {
         if (self->display_width == 172 && self->display_height == 320) {
             rotations = ORIENTATIONS_172x320;
+        }
     }
 
     if (rotations) {
