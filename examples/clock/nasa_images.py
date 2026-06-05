@@ -23,7 +23,8 @@ def main():
 
     while True:
         for image in range(1, 25):
-            filename = f"clock_{tft.width()}x{tft.height()}/nasa{image:02d}.jpg"
+            # If you dont upload clock folder to esp then delete clock/
+            filename = f"clock/clock_{tft.width()}x{tft.height()}/nasa{image:02d}.jpg"
             tft.jpg(filename, 0, 0)  # Draw full screen jpg
             gc.collect()
             time.sleep(5)  # Wait 5 second
