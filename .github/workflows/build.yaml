@@ -7,8 +7,8 @@ on:
   push:
     tags:
      - 'v*'
-#  schedule:
- #    - cron: '0 0 1 * *'
+  schedule:
+     - cron: '0 0 1 */2 *'
   
   workflow_dispatch:
 
@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Clonar el repositorio
-      uses: actions/checkout@v6.0.2
+      uses: actions/checkout@v7
       
     - name: Clonar Micropython
       run: git clone --recurse-submodules https://github.com/micropython/micropython.git
@@ -98,7 +98,7 @@ jobs:
       run: echo "TAG_NAME=release-$(date +'%Y%m%d-%H%M')" >> $GITHUB_ENV
       
     - name: GH Release
-      uses: softprops/action-gh-release@v3.0.0
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ env.TAG_NAME }}
         name: "MicroPython for Waveshare ESP32-S3 Touch LCD 1.47 with JD9853 Driver + AXS5106 Touch Module Release version ${{ env.MPY_VERSION }} (Build ${{ env.TAG_NAME }})"
